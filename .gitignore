@@ -1,0 +1,14 @@
+# Rust
+/target
+Cargo.lock
+
+# IDE
+/.vscode
+/.idea
+
+# integrate test
+/tests
+
+# temp & conf
+conf.yaml
+cookie.tmp

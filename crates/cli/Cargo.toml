@@ -1,0 +1,26 @@
+[package]
+name = "yxy-cli"
+version = "0.1.1"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["DumpTime"]
+description = "Command Line Interface for YXY"
+keywords = ["yxy", "YSchool", "CLI"]
+categories = ["command-line-utilities"]
+homepage = "https://github.com/DumpTime/yxy"
+repository = "https://github.com/DumpTime/yxy/tree/dev/crates/cli"
+readme = "README.md"
+
+[dependencies]
+yxy = { path = "../core", version = "0.2" }
+serde = "1.0"
+serde_yaml = "0.9"
+serde_json = "1.0"
+
+[dependencies.clap]
+version = "4.0"
+features = ["derive"]
+
+[dependencies.reqwest]
+version = "0.11"
+features = ["blocking", "json"]

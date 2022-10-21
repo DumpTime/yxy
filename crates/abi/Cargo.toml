@@ -1,0 +1,16 @@
+[package]
+name = "yxy-abi"
+version = "0.2.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["DumpTime"]
+description = "C-style yxy bindings"
+readme = "README.md"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+yxy = { path = "../core", version = "0.2" }
+ffi-destruct = "0.1"

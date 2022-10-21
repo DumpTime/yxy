@@ -1,0 +1,34 @@
+[package]
+name = "yxy"
+version = "0.2.2"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["DumpTime"]
+description = "YXY(YSchool) platform API binding"
+keywords = ["yxy", "YSchool", "API"]
+categories = ["api-bindings"]
+homepage = "https://github.com/DumpTime/yxy"
+repository = "https://github.com/DumpTime/yxy/tree/dev/crates/core"
+readme = "README.md"
+
+[dependencies]
+rsa = "0.7"
+rand = "0.8"
+base64 = "0.13"
+md5 = "0.7"
+aes = "0.8"
+serde_json = "1.0"
+const_format = "0.2"
+chrono = "0.4"
+
+[dependencies.reqwest]
+version = "0.11"
+features = ["blocking", "json", "cookies"]
+
+[dependencies.uuid]
+version = "1.2"
+features = ["v4", "fast-rng", "macro-diagnostics"]
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
