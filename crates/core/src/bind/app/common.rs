@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 /// Get common submit token (formal)
 pub fn get_submit_token(client: &Client, uid: &str) -> Result<String, Error> {
-    let form = vec![("ymId", uid)];
+    let form = [("ymId", uid)];
     let mut res = client
         .post(crate::url::application::GET_SUBMIT_TOKEN)
         .form(&form)

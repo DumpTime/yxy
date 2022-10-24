@@ -5,7 +5,7 @@ use reqwest::{
     cookie::{Cookie, Jar},
 };
 use serde::Deserialize;
-use std::{collections::HashMap, io::Read, sync::Arc, time::Duration};
+use std::{io::Read, sync::Arc, time::Duration};
 
 use crate::error::Error;
 
@@ -96,18 +96,20 @@ fn extract_code(url: &str) -> Option<String> {
 ///
 /// **Must use a none redirect policy client**
 pub fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
+    let query = [
+        ("bindSkip", "1"),
+        ("authType", "2"),
+        ("appid", super::APP_ID),
+        (
+            "callbackUrl",
+            &format!("{}/", crate::url::application::BASE_URL),
+        ),
+        ("unionid", id),
+    ];
+
     let response = client
         .get(crate::url::auth::OAUTH_URL)
-        .query(&[
-            ("bindSkip", "1"),
-            ("authType", "2"),
-            ("appid", super::APP_ID),
-            (
-                "callbackUrl",
-                &format!("{}/", crate::url::application::BASE_URL),
-            ),
-            ("unionid", id),
-        ])
+        .query(&query)
         .send()?;
 
     if !response.status().is_redirection() {
@@ -128,8 +130,7 @@ pub fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
 /// Authorize the handler and fetch user infos
 pub fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Error> {
     // Form data
-    let mut params = HashMap::new();
-    params.insert("code", code);
+    let params = [("code", code)];
 
     let mut response = client
         .post(crate::url::application::GET_USER_FOR_AUTHORIZE)
@@ -181,8 +182,7 @@ impl super::AppHandler {
         let code = get_oauth_code(&client, uid)?;
 
         // Form data
-        let mut params = HashMap::new();
-        params.insert("code", code);
+        let params = [("code", code.as_str())];
 
         let mut response = client
             .post(crate::url::application::GET_USER_FOR_AUTHORIZE)
@@ -207,8 +207,7 @@ impl super::AppHandler {
     /// Get user info
     pub fn get_user_info(&self) -> Result<UserInfo, Error> {
         // Form data
-        let mut params = HashMap::new();
-        params.insert("userId", rand::random::<u8>()); // random user id
+        let params = [("userId", rand::random::<u8>())];
 
         let mut response = self
             .client

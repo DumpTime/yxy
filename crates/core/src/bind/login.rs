@@ -4,7 +4,6 @@ use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyIn
 use aes::Aes128;
 use reqwest::blocking::Client;
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::io::Read;
 
 use super::{check_response, url};
@@ -114,12 +113,12 @@ impl LoginHandler {
     }
 
     /// Init general request body
-    pub fn basic_request_body(&self) -> HashMap<&str, &str> {
-        let mut result = HashMap::new();
-        result.insert("appVersion", super::APP_VER);
-        result.insert("deviceId", &self.device_id);
-        result.insert("platform", super::PLATFORM);
-        result.insert("testAccount", "1");
+    pub fn basic_request_body(&self) -> Vec<(&str, &str)> {
+        let mut result = Vec::<(&str, &str)>::new();
+        result.push(("appVersion", super::APP_VER));
+        result.push(("deviceId", &self.device_id));
+        result.push(("platform", super::PLATFORM));
+        result.push(("testAccount", "1"));
 
         result
     }
@@ -154,7 +153,7 @@ impl LoginHandler {
     /// Return image captcha base64 string
     pub fn get_captcha_image(&self, security_token: &str) -> Result<String, Error> {
         let mut body = self.basic_request_body();
-        body.insert("securityToken", security_token);
+        body.push(("securityToken", security_token));
 
         let mut resp = self
             .client
@@ -185,14 +184,14 @@ impl LoginHandler {
 
         let app_security_token = app_security_token(security_token, &self.device_id)?; // Important
 
-        body.insert("appSecurityToken", &app_security_token);
-        body.insert("securityToken", security_token);
-        body.insert("sendCount", "1");
-        body.insert("mobilePhone", phone_num);
+        body.push(("appSecurityToken", &app_security_token));
+        body.push(("securityToken", security_token));
+        body.push(("sendCount", "1"));
+        body.push(("mobilePhone", phone_num));
 
         // If image captcha required
         if let Some(v) = captcha {
-            body.insert("imageCaptchaValue", v);
+            body.push(("imageCaptchaValue", v));
         }
 
         let mut resp = self
@@ -242,12 +241,12 @@ impl LoginHandler {
     /// return [`LoginInfo`]
     pub fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo, Error> {
         let mut body = self.basic_request_body();
-        body.insert("clientId", super::CLIENT_ID);
-        body.insert("mobilePhone", phone_num);
-        body.insert("osType", super::OS_TYPE);
-        body.insert("osUuid", &self.device_id);
-        body.insert("osVersion", super::OS_VERSION);
-        body.insert("verificationCode", code);
+        body.push(("clientId", super::CLIENT_ID));
+        body.push(("mobilePhone", phone_num));
+        body.push(("osType", super::OS_TYPE));
+        body.push(("osUuid", &self.device_id));
+        body.push(("osVersion", super::OS_VERSION));
+        body.push(("verificationCode", code));
 
         let mut resp = self
             .client
@@ -292,12 +291,12 @@ impl LoginHandler {
     /// Used to refresh token and get [`LoginInfo`]
     pub fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo, Error> {
         let mut body = self.basic_request_body();
-        body.insert("clientId", super::CLIENT_ID);
-        body.insert("osType", super::OS_TYPE);
-        body.insert("osUuid", &self.device_id);
-        body.insert("osVersion", super::OS_VERSION);
-        body.insert("token", token);
-        body.insert("ymId", uid);
+        body.push(("clientId", super::CLIENT_ID));
+        body.push(("osType", super::OS_TYPE));
+        body.push(("osUuid", &self.device_id));
+        body.push(("osVersion", super::OS_VERSION));
+        body.push(("token", token));
+        body.push(("ymId", uid));
 
         let mut resp = self
             .client
@@ -405,12 +404,12 @@ impl LoginHandler {
 
         let encrypted_password = crate::utils::encrypt_password(password, public_key)?;
 
-        body.insert("clientId", super::CLIENT_ID);
-        body.insert("mobilePhone", phone_num);
-        body.insert("osType", super::OS_TYPE);
-        body.insert("osUuid", &self.device_id);
-        body.insert("osVersion", super::OS_VERSION);
-        body.insert("password", &encrypted_password);
+        body.push(("clientId", super::CLIENT_ID));
+        body.push(("mobilePhone", phone_num));
+        body.push(("osType", super::OS_TYPE));
+        body.push(("osUuid", &self.device_id));
+        body.push(("osVersion", super::OS_VERSION));
+        body.push(("password", &encrypted_password));
 
         let mut resp = self
             .client

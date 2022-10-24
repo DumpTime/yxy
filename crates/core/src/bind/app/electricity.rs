@@ -116,7 +116,7 @@ impl AppHandler {
     ///
     /// Only return one bind info from list
     pub fn query_electricity_binding(&self) -> Result<EleBindInfo, Error> {
-        let form = vec![("bindType", "3")];
+        let form = [("bindType", "3")];
 
         let mut resp = self
             .client
