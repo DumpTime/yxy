@@ -114,13 +114,12 @@ impl LoginHandler {
 
     /// Init general request body
     pub fn basic_request_body(&self) -> Vec<(&str, &str)> {
-        let mut result = Vec::<(&str, &str)>::new();
-        result.push(("appVersion", super::APP_VER));
-        result.push(("deviceId", &self.device_id));
-        result.push(("platform", super::PLATFORM));
-        result.push(("testAccount", "1"));
-
-        result
+        vec![
+            ("appVersion", super::APP_VER),
+            ("deviceId", &self.device_id),
+            ("platform", super::PLATFORM),
+            ("testAccount", "1"),
+        ]
     }
 
     /// Return security token & level
