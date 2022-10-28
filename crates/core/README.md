@@ -1,4 +1,4 @@
-# YXY &emsp; [![crates badge]][crates.io] [![docs badge]][docs.rs] [![ci badge]][ci] [![build badge]][build]
+# YXY &emsp; [![ci badge]][ci] [![build badge]][build]
 
 [crates badge]: https://img.shields.io/crates/v/yxy.svg?logo=rust
 [crates.io]: https://crates.io/crates/yxy
@@ -21,5 +21,4 @@ It uses [reqwest] blocking client to perform requests.
 [repo]: https://github.com/DumpTime/yxy
 
 For more details:
-- [docs.rs]
 - [repo]

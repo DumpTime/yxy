@@ -1,6 +1,6 @@
 [package]
 name = "yxy"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 license = "Apache-2.0"
 authors = ["DumpTime"]
@@ -10,6 +10,7 @@ categories = ["api-bindings"]
 homepage = "https://github.com/DumpTime/yxy"
 repository = "https://github.com/DumpTime/yxy/tree/dev/crates/core"
 readme = "README.md"
+publish = false
 
 [dependencies]
 rsa = "0.7"

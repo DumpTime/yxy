@@ -10,6 +10,7 @@ categories = ["command-line-utilities"]
 homepage = "https://github.com/DumpTime/yxy"
 repository = "https://github.com/DumpTime/yxy/tree/dev/crates/cli"
 readme = "README.md"
+publish = false
 
 [dependencies]
 yxy = { path = "../core", version = "0.2" }
