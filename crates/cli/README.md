@@ -1,4 +1,4 @@
-# YXY CLI &emsp; [crates.io]
+# YXY CLI &emsp; 
 
 Command Line Interface for YXY
 
