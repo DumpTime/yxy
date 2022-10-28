@@ -1,14 +1,14 @@
-# YXY CLI &emsp; [![crates badge]][crates.io]
+# YXY CLI &emsp; [crates.io]
 
 Command Line Interface for YXY
 
 ## Installation
 
 1. Prepare `Rust` development environment.  
-2. Build & install.
+2. Build & Run.
    
    ```bash
-   cargo install -f yxy-cli
+   cargo run
    ```
 
 ## Features
