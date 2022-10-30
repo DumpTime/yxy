@@ -4,7 +4,7 @@ pub mod app;
 pub mod login;
 pub mod pay;
 
-use reqwest::Response;
+use reqwest::{Client, Response};
 use std::time::Duration;
 
 use crate::error::Error;
@@ -26,10 +26,10 @@ const USER_AGENT: &str = const_format::formatcp!(
 );
 const CLIENT_ID: &str = "65l09sfwa9ao2dc";
 
-/// Build a default [`reqwest::blocking::Client`].
-pub fn build_default_client() -> Result<reqwest::blocking::Client, Error> {
-    let builder: reqwest::blocking::ClientBuilder = reqwest::blocking::Client::builder();
-    let result: reqwest::blocking::Client = builder
+/// Build a default [`reqwest::Client`].
+pub fn build_default_client() -> Result<Client, Error> {
+    let builder = Client::builder();
+    let result = builder
         .connect_timeout(Duration::new(5, 0))
         .user_agent(USER_AGENT)
         .build()?;
@@ -40,9 +40,9 @@ pub fn build_default_client() -> Result<reqwest::blocking::Client, Error> {
 /// Build non-redirect [`reqwest::blocking::Client`].
 ///
 /// This client is used to request OAuth code.
-pub fn build_non_redirect_client() -> Result<reqwest::blocking::Client, Error> {
-    let builder: reqwest::blocking::ClientBuilder = reqwest::blocking::Client::builder();
-    let result: reqwest::blocking::Client = builder
+pub fn build_non_redirect_client() -> Result<Client, Error> {
+    let builder = Client::builder();
+    let result = builder
         .connect_timeout(Duration::new(5, 0))
         .user_agent(USER_AGENT)
         .redirect(reqwest::redirect::Policy::none())

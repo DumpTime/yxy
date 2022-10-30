@@ -1,44 +1,13 @@
 //! Application authorize APIs
 
 use reqwest::{
-    blocking::Client,
     cookie::{Cookie, Jar},
+    Client,
 };
 use serde::Deserialize;
-use std::{io::Read, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use crate::error::Error;
-
-/// Authorize API response definition
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct AuthResponse {
-    // status_code: i32,
-    message: String,
-    success: bool,
-    data: Option<UserInfo>,
-}
-
-/// User info provided by platform
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct UserInfo {
-    /// UID: User ID
-    pub id: String,
-    pub mobile_phone: String,
-    pub sex: i8,
-    pub test_account: i8,
-    pub platform: String,
-    pub third_openid: String,
-    pub school_code: Option<String>,
-    pub school_name: Option<String>,
-    pub user_name: Option<String>,
-    pub user_type: Option<String>,
-    pub job_no: Option<String>,
-    pub user_idcard: Option<String>,
-    pub user_class: Option<String>,
-    pub bind_card_status: Option<i8>,
-}
 
 /// Extract code value from redirection URL query string
 ///
@@ -95,7 +64,7 @@ fn extract_code(url: &str) -> Option<String> {
 /// ```
 ///
 /// **Must use a none redirect policy client**
-pub fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
+pub async fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
     let query = [
         ("bindSkip", "1"),
         ("authType", "2"),
@@ -110,7 +79,8 @@ pub fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
     let response = client
         .get(crate::url::auth::OAUTH_URL)
         .query(&query)
-        .send()?;
+        .send()
+        .await?;
 
     if !response.status().is_redirection() {
         return Err(Error::Auth("OAuth failed.".to_string()));
@@ -128,16 +98,17 @@ pub fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
 }
 
 /// Authorize the handler and fetch user infos
-pub fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Error> {
+pub async fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Error> {
     // Form data
     let params = [("code", code)];
 
     let mut response = client
         .post(crate::url::application::GET_USER_FOR_AUTHORIZE)
         .form(&params)
-        .send()?;
+        .send()
+        .await?;
 
-    crate::bind::check_response(&mut response)?;
+    crate::bind::check_response(&mut response).await?;
 
     let cookies: Vec<Cookie> = response.cookies().collect();
 
@@ -145,11 +116,15 @@ pub fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Erro
     match cookies.iter().find(|x| x.name() == super::SESSION_KEY) {
         Some(v) => {
             let session = v.value().to_string();
-            let mut resp = String::new();
-            response.read_to_string(&mut resp)?;
-            let resp_ser: AuthResponse = match serde_json::from_str(&resp) {
+            let resp = response.bytes().await?;
+
+            let resp_ser: AuthResponse = match serde_json::from_slice(resp.as_ref()) {
                 Ok(v) => v,
-                Err(e) => return Err(Error::Runtime(format!("Parsing error: {e}\nData: {resp}"))),
+                Err(e) => {
+                    return Err(Error::Runtime(format!(
+                        "Parsing error: {e}\nData: {resp:?}"
+                    )))
+                }
             };
             if !resp_ser.success {
                 return Err(Error::Auth(resp_ser.message));
@@ -160,7 +135,7 @@ pub fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Erro
             }
         }
         None => {
-            let resp_ser: AuthResponse = response.json()?;
+            let resp_ser: AuthResponse = response.json().await?;
             Err(Error::Auth(resp_ser.message))
         }
     }
@@ -168,18 +143,18 @@ pub fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Erro
 
 impl super::AppHandler {
     /// Create new app handler with authorize
-    pub fn build_by_uid(uid: &str) -> Result<Self, Error> {
+    pub async fn build_by_uid(uid: &str) -> Result<Self, Error> {
         // Store session in cookie jar
         let jar = Jar::default();
 
-        let client = reqwest::blocking::Client::builder()
+        let client = Client::builder()
             .connect_timeout(Duration::new(5, 0))
             .user_agent(crate::bind::USER_AGENT)
             .redirect(reqwest::redirect::Policy::none())
             .cookie_provider(Arc::new(jar))
             .build()?;
 
-        let code = get_oauth_code(&client, uid)?;
+        let code = get_oauth_code(&client, uid).await?;
 
         // Form data
         let params = [("code", code.as_str())];
@@ -187,15 +162,20 @@ impl super::AppHandler {
         let mut response = client
             .post(crate::url::application::GET_USER_FOR_AUTHORIZE)
             .form(&params)
-            .send()?;
+            .send()
+            .await?;
 
-        crate::bind::check_response(&mut response)?;
+        crate::bind::check_response(&mut response).await?;
 
-        let mut resp = String::new();
-        response.read_to_string(&mut resp)?;
-        let resp_ser: AuthResponse = match serde_json::from_str(&resp) {
+        let resp = response.bytes().await?;
+
+        let resp_ser: AuthResponse = match serde_json::from_slice(resp.as_ref()) {
             Ok(v) => v,
-            Err(e) => return Err(Error::Runtime(format!("Parsing error: {e}\nData: {resp}"))),
+            Err(e) => {
+                return Err(Error::Runtime(format!(
+                    "Parsing error: {e}\nData: {resp:?}"
+                )))
+            }
         };
         if !resp_ser.success {
             return Err(Error::Auth(resp_ser.message));
@@ -205,7 +185,7 @@ impl super::AppHandler {
     }
 
     /// Get user info
-    pub fn get_user_info(&self) -> Result<UserInfo, Error> {
+    pub async fn get_user_info(&self) -> Result<UserInfo, Error> {
         // Form data
         let params = [("userId", rand::random::<u8>())];
 
@@ -213,10 +193,11 @@ impl super::AppHandler {
             .client
             .post(crate::url::application::GET_USER_FOR_AUTHORIZE)
             .form(&params)
-            .send()?;
-        crate::bind::check_response(&mut response)?;
+            .send()
+            .await?;
+        crate::bind::check_response(&mut response).await?;
 
-        let resp_ser: AuthResponse = response.json()?;
+        let resp_ser: AuthResponse = response.json().await?;
         if !resp_ser.success {
             return Err(Error::Runtime(format!(
                 "Get user info failed: {}",
@@ -231,4 +212,39 @@ impl super::AppHandler {
             ))),
         }
     }
+}
+
+// ====================
+// ====== Models ======
+// ====================
+
+/// Authorize API response definition
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AuthResponse {
+    // status_code: i32,
+    message: String,
+    success: bool,
+    data: Option<UserInfo>,
+}
+
+/// User info provided by platform
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserInfo {
+    /// UID: User ID
+    pub id: String,
+    pub mobile_phone: String,
+    pub sex: i8,
+    pub test_account: i8,
+    pub platform: String,
+    pub third_openid: String,
+    pub school_code: Option<String>,
+    pub school_name: Option<String>,
+    pub user_name: Option<String>,
+    pub user_type: Option<String>,
+    pub job_no: Option<String>,
+    pub user_idcard: Option<String>,
+    pub user_class: Option<String>,
+    pub bind_card_status: Option<i8>,
 }

@@ -7,6 +7,7 @@ pub mod common;
 pub mod electricity;
 
 use reqwest::cookie::Jar;
+use reqwest::Client;
 use std::{sync::Arc, time::Duration};
 
 use crate::error::Error;
@@ -17,7 +18,7 @@ const SESSION_KEY: &str = "shiroJID";
 /// Authorized session handle
 #[derive(Debug)]
 pub struct AppHandler {
-    client: reqwest::blocking::Client,
+    client: Client,
 }
 
 impl AppHandler {
@@ -32,7 +33,7 @@ impl AppHandler {
                     &reqwest::Url::parse(crate::url::application::BASE_URL).unwrap(),
                 );
 
-                reqwest::blocking::Client::builder()
+                Client::builder()
                     .connect_timeout(Duration::new(5, 0))
                     .user_agent(super::USER_AGENT)
                     .cookie_provider(Arc::new(jar))
