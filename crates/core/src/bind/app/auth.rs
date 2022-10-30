@@ -4,7 +4,7 @@ use reqwest::{
     cookie::{Cookie, Jar},
     Client,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
 
 use crate::error::Error;
@@ -229,7 +229,7 @@ struct AuthResponse {
 }
 
 /// User info provided by platform
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfo {
     /// UID: User ID
