@@ -139,7 +139,7 @@ pub unsafe extern "C" fn send_verification_code(
             eprintln!("{e}");
             match e {
                 yxy::error::Error::BadPhoneNumber => -10, // Bad phone number
-                yxy::error::Error::VerificationLimit => -11, // Too may requests, limited
+                yxy::error::Error::Limited => -11,        // Too may requests, limited
                 _ => -1,                                  // Return -1 on other error
             }
         }

@@ -219,7 +219,7 @@ impl LoginHandler {
                     || resp_ser.message == error_messages::FLOW_CONTROL
                     || resp_ser.message == error_messages::TOO_MANY_TRIES
                 {
-                    return Err(Error::VerificationLimit);
+                    return Err(Error::Limited);
                 }
             }
 

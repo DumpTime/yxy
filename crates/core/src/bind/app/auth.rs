@@ -113,7 +113,7 @@ pub fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
         .send()?;
 
     if !response.status().is_redirection() {
-        return Err(Error::OAuthError);
+        return Err(Error::Auth("OAuth failed.".to_string()));
     }
 
     let header_location = match response.headers().get("Location") {

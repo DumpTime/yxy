@@ -139,7 +139,7 @@ impl AppHandler {
         let resp_ser: Response = resp.json()?;
         if !resp_ser.success {
             if resp_ser.status_code == 204 {
-                return Err(Error::AuthExpired);
+                return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
                 "Fail to query bind: {}",
@@ -180,7 +180,7 @@ impl AppHandler {
 
         if !resp_ser.success {
             if resp_ser.status_code == 204 {
-                return Err(Error::AuthExpired);
+                return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
                 "Fail to query electricity: {}",
@@ -258,7 +258,7 @@ impl AppHandler {
 
         if !resp_ser.success {
             if resp_ser.status_code == 204 {
-                return Err(Error::AuthExpired);
+                return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
                 "Fail to recharge electricity: {}",
