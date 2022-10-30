@@ -4,8 +4,8 @@ pub mod app;
 pub mod login;
 pub mod pay;
 
-use reqwest::blocking::Response;
-use std::{io::Read, time::Duration};
+use reqwest::Response;
+use std::time::Duration;
 
 use crate::error::Error;
 use crate::url;
@@ -52,15 +52,18 @@ pub fn build_non_redirect_client() -> Result<reqwest::blocking::Client, Error> {
 }
 
 /// Check response status code.
-fn check_response(res: &mut Response) -> Result<(), Error> {
+async fn check_response(res: &mut Response) -> Result<(), Error> {
     if !res.status().is_success() {
-        let mut text = String::new();
-        res.read_to_string(&mut text)?;
-        return Err(Error::Runtime(format!(
-            "Bad response: {}\nText: {}",
-            res.status(),
-            text,
-        )));
+        let text = res.chunk().await?;
+        if let Some(text) = text {
+            return Err(Error::Runtime(format!(
+                "Bad response: {}\nText: {:?}",
+                res.status(),
+                text,
+            )));
+        } else {
+            return Err(Error::Runtime(format!("Bad response: {}", res.status())));
+        }
     }
 
     Ok(())

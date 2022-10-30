@@ -24,8 +24,8 @@ thiserror = "1.0"
 chrono = "0.4"
 
 [dependencies.reqwest]
+features = ["json", "cookies"]
 version = "0.11"
-features = ["blocking", "json", "cookies"]
 
 [dependencies.tokio]
 version = "1"

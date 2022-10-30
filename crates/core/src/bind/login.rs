@@ -2,89 +2,12 @@
 
 use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::Aes128;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use serde::Deserialize;
-use std::io::Read;
 
 use super::{check_response, url};
 use crate::error::Error;
 use crate::utils::{md5, pkcs7_padding};
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct BasicResponse<T> {
-    pub status_code: i32,
-    pub success: bool,
-    pub message: String,
-    pub data: Option<T>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SecurityTokenInfo {
-    /// Level 0: No captcha required.
-    pub level: u8,
-    pub security_token: String,
-}
-
-/// Login result
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LoginInfo {
-    /// UID
-    pub id: String,
-    /// App session token
-    pub token: String,
-    pub account: String,
-    pub account_encrypt: String,
-    pub mobile_phone: String,
-    /// 1 as male, 0 as female
-    pub sex: Option<i8>,
-    pub school_code: Option<String>,
-    pub school_name: Option<String>,
-    pub qrcode_pay_type: Option<u8>,
-    pub user_name: Option<String>,
-    pub user_type: Option<String>,
-    pub job_no: Option<String>,
-    pub user_idcard: Option<String>,
-    pub identity_no: Option<String>,
-    pub user_class: Option<String>,
-    pub real_name_status: i32,
-    /// register time
-    pub regiser_time: Option<String>,
-    pub bind_card_status: i32,
-    pub last_login: String,
-    pub head_img: String,
-    pub device_id: String,
-    pub test_account: i32,
-    pub join_newactivity_status: i32,
-    pub is_new: Option<i8>,
-    pub create_status: i32,
-    pub eacct_status: i32,
-    pub school_classes: Option<i32>,
-    pub school_nature: Option<i32>,
-    pub platform: String,
-    /// Unknown usage
-    pub uu_token: String,
-    pub qrcode_private_key: String,
-    pub bind_card_rate: Option<i32>,
-    pub points: Option<i32>,
-    pub school_identity_type: Option<i32>,
-    pub alumni_flag: Option<i32>,
-    /// Some json extensions
-    pub ext_json: Option<String>,
-}
-
-/// Define login error response messages
-mod error_messages {
-    pub const WRONG_SECRET: &str = "您已输错";
-    pub const BAD_PHONE_NUM: &str = "请输入正确的手机号";
-    pub const BAD_PHONE_NUM_FORMAT: &str = "手机号码格式错误";
-    pub const TOO_FREQUENT: &str = "经过你的";
-    pub const TOO_MANY_TRIES: &str = "发送超限，请明天再来";
-    pub const FLOW_CONTROL: &str = "触发号码天级流控";
-    pub const DEVICE_CHANGED: &str = "设备已更换";
-}
 
 /// Handle of login procedure
 pub struct LoginHandler {
@@ -123,17 +46,18 @@ impl LoginHandler {
     }
 
     /// Return security token & level
-    pub fn get_security_token(&self) -> Result<SecurityTokenInfo, Error> {
+    pub async fn get_security_token(&self) -> Result<SecurityTokenInfo, Error> {
         let body = self.basic_request_body();
 
         let mut resp = self
             .client
             .post(url::campus::GET_SECURITY_TOKEN)
             .form(&body)
-            .send()?;
-        check_response(&mut resp)?;
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
 
-        let resp_ser: BasicResponse<SecurityTokenInfo> = resp.json()?;
+        let resp_ser: BasicResponse<SecurityTokenInfo> = resp.json().await?;
         if !resp_ser.success {
             return Err(Error::Runtime(format!(
                 "Get security token failed: {}",
@@ -150,7 +74,7 @@ impl LoginHandler {
     /// Get image captcha
     ///
     /// Return image captcha base64 string
-    pub fn get_captcha_image(&self, security_token: &str) -> Result<String, Error> {
+    pub async fn get_captcha_image(&self, security_token: &str) -> Result<String, Error> {
         let mut body = self.basic_request_body();
         body.push(("securityToken", security_token));
 
@@ -158,10 +82,11 @@ impl LoginHandler {
             .client
             .post(url::campus::GET_IMAGE_CAPTCHA)
             .form(&body)
-            .send()?;
-        check_response(&mut resp)?;
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
 
-        let resp_ser: BasicResponse<String> = resp.json()?;
+        let resp_ser: BasicResponse<String> = resp.json().await?;
         if !resp_ser.success {
             Err(Error::Runtime(format!(
                 "Get image captcha failed: {}",
@@ -173,7 +98,7 @@ impl LoginHandler {
     }
 
     /// Request to send login verification code SMS
-    pub fn send_verification_code(
+    pub async fn send_verification_code(
         &self,
         phone_num: &str,
         security_token: &str,
@@ -197,8 +122,9 @@ impl LoginHandler {
             .client
             .post(url::campus::SEND_VERIFICATION_CODE)
             .form(&body)
-            .send()?;
-        check_response(&mut resp)?;
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
 
         /// Define data object
         #[derive(Debug, Deserialize)]
@@ -207,7 +133,7 @@ impl LoginHandler {
             user_exists: bool,
         }
 
-        let resp_ser: BasicResponse<Data> = resp.json()?;
+        let resp_ser: BasicResponse<Data> = resp.json().await?;
         if !resp_ser.success {
             if resp_ser.status_code == 203 {
                 if resp_ser.message == error_messages::BAD_PHONE_NUM
@@ -238,7 +164,7 @@ impl LoginHandler {
     /// Do login by verification code
     ///
     /// return [`LoginInfo`]
-    pub fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo, Error> {
+    pub async fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo, Error> {
         let mut body = self.basic_request_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("mobilePhone", phone_num));
@@ -251,18 +177,17 @@ impl LoginHandler {
             .client
             .post(url::campus::DO_LOGIN_BY_CODE)
             .form(&body)
-            .send()?;
-        check_response(&mut resp)?;
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
 
-        let mut buf = String::new();
-        resp.read_to_string(&mut buf)?;
-        // println!("resp: {}", buf);
+        let buf = resp.bytes().await?;
 
-        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_str(&buf) {
+        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
-                    "Parsing login response failed: {}\nData: {}",
+                    "Parsing login response failed: {}\nData: {:?}",
                     e, buf
                 )))
             }
@@ -288,7 +213,7 @@ impl LoginHandler {
     /// Bind to [`crate::url::campus::DO_LOGIN_BY_TOKEN`]
     ///
     /// Used to refresh token and get [`LoginInfo`]
-    pub fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo, Error> {
+    pub async fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo, Error> {
         let mut body = self.basic_request_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("osType", super::OS_TYPE));
@@ -301,17 +226,17 @@ impl LoginHandler {
             .client
             .post(url::campus::DO_LOGIN_BY_TOKEN)
             .form(&body)
-            .send()?;
-        check_response(&mut resp)?;
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
 
-        let mut buf = String::new();
-        resp.read_to_string(&mut buf)?;
+        let buf = resp.bytes().await?;
 
-        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_str(&buf) {
+        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
-                    "Parsing login response failed: {}\nData: {}",
+                    "Parsing login response failed: {}\nData: {:?}",
                     e, buf
                 )))
             }
@@ -333,19 +258,19 @@ impl LoginHandler {
     }
 
     /// Get the public key used to encrypt the password
-    pub fn get_public_key(&self) -> Result<String, Error> {
+    pub async fn get_public_key(&self) -> Result<String, Error> {
         let body = self.basic_request_body();
 
         let mut resp = self
             .client
             .post(url::campus::GET_PUBLIC_KEY)
             .form(&body)
-            .send()?;
+            .send()
+            .await?;
 
-        check_response(&mut resp)?;
+        check_response(&mut resp).await?;
 
-        let mut buf = String::new();
-        resp.read_to_string(&mut buf)?;
+        let buf = resp.bytes().await?;
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "camelCase")]
@@ -353,11 +278,11 @@ impl LoginHandler {
             public_key: String,
         }
 
-        let resp_ser: BasicResponse<PublicKey> = match serde_json::from_str(&buf) {
+        let resp_ser: BasicResponse<PublicKey> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
-                    "Parsing public key response failed: {}\nData: {}",
+                    "Parsing public key response failed: {}\nData: {:?}",
                     e, buf
                 )))
             }
@@ -393,7 +318,7 @@ impl LoginHandler {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn do_login_by_password(
+    pub async fn do_login_by_password(
         &self,
         phone_num: &str,
         password: &str,
@@ -414,17 +339,17 @@ impl LoginHandler {
             .client
             .post(url::campus::DO_LOGIN_BY_PWD)
             .form(&body)
-            .send()?;
-        check_response(&mut resp)?;
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
 
-        let mut buf = String::new();
-        resp.read_to_string(&mut buf)?;
+        let buf = resp.bytes().await?;
 
-        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_str(&buf) {
+        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
-                    "Parsing login response failed: {}\nData: {}",
+                    "Parsing login response failed: {}\nData: {:?}",
                     e, buf
                 )))
             }
@@ -451,13 +376,13 @@ impl LoginHandler {
 /// Init App simulated client
 ///
 /// ## Contains
-/// - [`reqwest::blocking::Client`]
+/// - [`reqwest::Client`]
 /// - 5s timeout
 /// - UA header
-pub fn init_app_sim_client(device_id: &str) -> Result<reqwest::blocking::Client, Error> {
-    let builder: reqwest::blocking::ClientBuilder = reqwest::blocking::Client::builder();
+pub fn init_app_sim_client(device_id: &str) -> Result<Client, Error> {
+    let builder = Client::builder();
 
-    let result: reqwest::blocking::Client = builder
+    let result: reqwest::Client = builder
         .connect_timeout(std::time::Duration::new(5, 0))
         .user_agent(format!("{}{}", super::USER_AGENT, device_id))
         .build()?;
@@ -561,4 +486,84 @@ mod test {
         assert_eq!(id.len(), 37);
         assert!(id.starts_with("yunma"));
     }
+}
+
+// ========================
+//   Definitions
+// ========================
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BasicResponse<T> {
+    pub status_code: i32,
+    pub success: bool,
+    pub message: String,
+    pub data: Option<T>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SecurityTokenInfo {
+    /// Level 0: No captcha required.
+    pub level: u8,
+    pub security_token: String,
+}
+
+/// Login result
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LoginInfo {
+    /// UID
+    pub id: String,
+    /// App session token
+    pub token: String,
+    pub account: String,
+    pub account_encrypt: String,
+    pub mobile_phone: String,
+    /// 1 as male, 0 as female
+    pub sex: Option<i8>,
+    pub school_code: Option<String>,
+    pub school_name: Option<String>,
+    pub qrcode_pay_type: Option<u8>,
+    pub user_name: Option<String>,
+    pub user_type: Option<String>,
+    pub job_no: Option<String>,
+    pub user_idcard: Option<String>,
+    pub identity_no: Option<String>,
+    pub user_class: Option<String>,
+    pub real_name_status: i32,
+    /// register time
+    pub regiser_time: Option<String>,
+    pub bind_card_status: i32,
+    pub last_login: String,
+    pub head_img: String,
+    pub device_id: String,
+    pub test_account: i32,
+    pub join_newactivity_status: i32,
+    pub is_new: Option<i8>,
+    pub create_status: i32,
+    pub eacct_status: i32,
+    pub school_classes: Option<i32>,
+    pub school_nature: Option<i32>,
+    pub platform: String,
+    /// Unknown usage
+    pub uu_token: String,
+    pub qrcode_private_key: String,
+    pub bind_card_rate: Option<i32>,
+    pub points: Option<i32>,
+    pub school_identity_type: Option<i32>,
+    pub alumni_flag: Option<i32>,
+    /// Some json extensions
+    pub ext_json: Option<String>,
+}
+
+/// Define login error response messages
+mod error_messages {
+    pub const WRONG_SECRET: &str = "您已输错";
+    pub const BAD_PHONE_NUM: &str = "请输入正确的手机号";
+    pub const BAD_PHONE_NUM_FORMAT: &str = "手机号码格式错误";
+    pub const TOO_FREQUENT: &str = "经过你的";
+    pub const TOO_MANY_TRIES: &str = "发送超限，请明天再来";
+    pub const FLOW_CONTROL: &str = "触发号码天级流控";
+    pub const DEVICE_CHANGED: &str = "设备已更换";
 }
