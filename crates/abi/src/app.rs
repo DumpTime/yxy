@@ -2,7 +2,7 @@
 
 use super::*;
 
-use yxy::AppHandler;
+use yxy::blocking::AppHandler;
 
 #[repr(C)]
 #[derive(Destruct)]
@@ -15,8 +15,8 @@ pub struct RoomInfo {
 
 extern_c_destructor!(RoomInfo);
 
-impl From<yxy::RoomInfo> for RoomInfo {
-    fn from(info: yxy::RoomInfo) -> Self {
+impl From<yxy::blocking::RoomInfo> for RoomInfo {
+    fn from(info: yxy::blocking::RoomInfo) -> Self {
         Self {
             area_id: CString::new(info.area_id).unwrap_or_default().into_raw(),
             building_code: CString::new(info.building_code)
@@ -28,7 +28,7 @@ impl From<yxy::RoomInfo> for RoomInfo {
     }
 }
 
-impl From<&RoomInfo> for yxy::RoomInfo {
+impl From<&RoomInfo> for yxy::blocking::RoomInfo {
     /// Unsafe implementation [`From<RoomInfo>`] for [`yxy::RoomInfo`]
     fn from(info: &RoomInfo) -> Self {
         unsafe {
@@ -51,7 +51,7 @@ pub unsafe extern "C" fn query_ele_bind(handler: *const AppHandler) -> *mut Room
 
     match handler.query_electricity_binding() {
         Ok(bind) => {
-            let room = yxy::RoomInfo::from(bind);
+            let room = yxy::blocking::RoomInfo::from(bind);
             Box::into_raw(Box::new(RoomInfo::from(room)))
         }
         Err(e) => {
@@ -81,10 +81,10 @@ pub struct ElectricityInfo {
 
 extern_c_destructor!(ElectricityInfo);
 
-impl TryFrom<yxy::ElectricityInfo> for ElectricityInfo {
+impl TryFrom<yxy::blocking::ElectricityInfo> for ElectricityInfo {
     type Error = ();
 
-    fn try_from(mut info: yxy::ElectricityInfo) -> Result<Self, Self::Error> {
+    fn try_from(mut info: yxy::blocking::ElectricityInfo) -> Result<Self, Self::Error> {
         if info.surplus_list.is_empty() {
             return Err(());
         }
@@ -129,7 +129,7 @@ pub unsafe extern "C" fn query_ele(handler: *const AppHandler) -> *mut Electrici
             return std::ptr::null_mut();
         }
     };
-    let room = yxy::RoomInfo::from(bind);
+    let room = yxy::blocking::RoomInfo::from(bind);
 
     match handler.query_electricity(&room) {
         Ok(info) => match ElectricityInfo::try_from(info) {
@@ -152,7 +152,7 @@ pub unsafe extern "C" fn query_ele_by_room_info(
 ) -> *mut ElectricityInfo {
     check_null_return_null!(handler, info);
     let handler = &*handler;
-    let room = yxy::RoomInfo::from(&*info);
+    let room = yxy::blocking::RoomInfo::from(&*info);
 
     match handler.query_electricity(&room) {
         Ok(info) => match ElectricityInfo::try_from(info) {

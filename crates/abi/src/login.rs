@@ -2,7 +2,7 @@
 
 use super::*;
 
-use yxy::LoginHandler;
+use yxy::blocking::LoginHandler;
 
 extern_c_destructor!(LoginHandler);
 

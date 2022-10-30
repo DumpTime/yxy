@@ -2,7 +2,7 @@
 
 use super::*;
 
-use yxy::AppHandler;
+use yxy::blocking::AppHandler;
 
 extern_c_destructor!(AppHandler);
 
@@ -20,7 +20,7 @@ pub unsafe extern "C" fn app_auth(uid: *const c_char) -> *mut c_char {
     check_null_return_null!(uid);
     let uid = c_string_to_str(uid);
 
-    match yxy::wrapper::app_auth(uid) {
+    match yxy::blocking::wrapper::app_auth(uid) {
         Ok((ses, _)) => CString::new(ses).unwrap_or_default().into_raw(),
         Err(e) => {
             eprintln!("{e}");

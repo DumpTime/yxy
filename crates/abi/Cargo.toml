@@ -11,6 +11,10 @@ publish = false
 [lib]
 crate-type = ["cdylib", "staticlib"]
 
+[dependencies.yxy]
+path = "../core"
+version = "0.4"
+features = ["blocking"]
+
 [dependencies]
-yxy = { path = "../core", version = "0.2" }
 ffi-destruct = "0.1"
