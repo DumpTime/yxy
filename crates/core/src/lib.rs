@@ -172,6 +172,9 @@ pub mod url;
 pub mod utils;
 pub mod wrapper;
 
+#[cfg(feature = "blocking")]
+pub mod blocking;
+
 pub use bind::app::auth::UserInfo;
 pub use bind::app::electricity::{EleBindInfo, ElectricityInfo, RoomInfo};
 pub use bind::app::AppHandler;

@@ -36,4 +36,4 @@ version = "1.0"
 features = ["derive"]
 
 [features]
-blocking = []
+blocking = ["reqwest/blocking"]
