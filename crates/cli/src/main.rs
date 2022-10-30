@@ -248,7 +248,7 @@ fn query_ele(
             Err(e) => {
                 // Handle errors
                 match e {
-                    error::Error::AuthExpired => {
+                    error::Error::Auth(_) => {
                         if tried {
                             return Err(error::Error::Auth(
                                 "Maximum auth retry number reached.".into(),
