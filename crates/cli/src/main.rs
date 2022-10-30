@@ -3,7 +3,6 @@
 //! CLI for YXY
 
 use clap::Parser;
-use std::error::Error;
 
 use yxy::*;
 
@@ -11,17 +10,18 @@ mod arg;
 mod conf;
 mod utils;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<yxy::error::Error>> {
     let opts = arg::Options::parse();
 
     if let Some(v) = opts.command {
         match v {
             arg::Commands::Query { query: q, arg: a } => match q {
                 arg::Query::Uid => {
-                    query_uid(&a, opts.verbose)?;
+                    query_uid(&a, opts.verbose).await?;
                 }
                 arg::Query::Electricity => {
-                    let (result, _session) = query_ele(&a, None, opts.verbose)?;
+                    let (result, _session) = query_ele(&a, None, opts.verbose).await?;
                     print_ele(&result);
                 }
             },
@@ -60,7 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         };
 
         // Default query electricity
-        let (result, session) = query_ele(&conf.uid, session, opts.verbose)?;
+        let (result, session) = query_ele(&conf.uid, session, opts.verbose).await?;
 
         // Cache the session
         if let Some(cookie_file) = &conf.cookie_file {
@@ -158,11 +158,11 @@ pub fn fmt_ele_md(info: &yxy::ElectricityInfo) -> String {
 }
 
 /// Query UID procedure
-fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
+async fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
     let handler = yxy::bind::login::LoginHandler::new()?;
 
     println!("Querying security token...");
-    let security_token = handler.get_security_token()?;
+    let security_token = handler.get_security_token().await?;
     if verbose {
         println!("Success: {:?}", security_token);
     }
@@ -171,7 +171,9 @@ fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
     if security_token.level != 0 {
         // image captcha required
         println!("Image captcha required.");
-        let result = handler.get_captcha_image(&security_token.security_token)?;
+        let result = handler
+            .get_captcha_image(&security_token.security_token)
+            .await?;
 
         println!("Captcha: {}", result);
 
@@ -180,15 +182,17 @@ fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
     }
 
     println!("Sending verification code...");
-    let user_exists = handler.send_verification_code(
-        phone_num,
-        &security_token.security_token,
-        if security_token.level == 0 {
-            None
-        } else {
-            Some(&captcha)
-        },
-    )?;
+    let user_exists = handler
+        .send_verification_code(
+            phone_num,
+            &security_token.security_token,
+            if security_token.level == 0 {
+                None
+            } else {
+                Some(&captcha)
+            },
+        )
+        .await?;
 
     if !user_exists {
         eprintln!("Current user is not registered");
@@ -200,7 +204,7 @@ fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
     std::io::stdin().read_line(&mut code)?;
 
     println!("Login...");
-    let result = handler.do_login_by_code(phone_num, &code)?;
+    let result = handler.do_login_by_code(phone_num, &code).await?;
     if verbose {
         println!("Login response: {:?}", result);
     }
@@ -233,7 +237,7 @@ fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
 }
 
 /// Procedure of query electricity
-fn query_ele(
+async fn query_ele(
     uid: &str,
     mut session: Option<String>,
     verbose: bool,
@@ -241,10 +245,10 @@ fn query_ele(
     let mut tried = false;
     loop {
         if session.is_none() {
-            let (ses, _) = app_auth(uid, verbose)?;
+            let (ses, _) = app_auth(uid, verbose).await?;
             session.replace(ses);
         }
-        match app_query_ele(session.as_ref().unwrap(), verbose) {
+        match app_query_ele(session.as_ref().unwrap(), verbose).await {
             Err(e) => {
                 // Handle errors
                 match e {
@@ -271,51 +275,55 @@ fn query_ele(
 }
 
 /// Authorization sub-procedure
-fn app_auth(id: &str, verbose: bool) -> Result<(String, UserInfo), error::Error> {
+async fn app_auth(id: &str, verbose: bool) -> Result<(String, UserInfo), error::Error> {
     let client = bind::build_non_redirect_client()?;
 
     if verbose {
         println!("Trying to get oauth code...");
-        let oauth_code = bind::app::auth::get_oauth_code(&client, id)?;
+        let oauth_code = bind::app::auth::get_oauth_code(&client, id).await?;
         println!("OAuth Code: {}", oauth_code);
 
         println!("Trying to auth...");
-        let (ses, user) = bind::app::auth::authorize(&client, &oauth_code)?;
+        let (ses, user) = bind::app::auth::authorize(&client, &oauth_code).await?;
         println!("Authorized, the session id is: {}", ses);
 
         Ok((ses, user))
     } else {
-        let oauth_code = bind::app::auth::get_oauth_code(&client, id)?;
+        let oauth_code = bind::app::auth::get_oauth_code(&client, id).await?;
 
-        let (ses, user) = bind::app::auth::authorize(&client, &oauth_code)?;
+        let (ses, user) = bind::app::auth::authorize(&client, &oauth_code).await?;
 
         Ok((ses, user))
     }
 }
 
 /// Application sub-procedure
-fn app_query_ele(session: &str, verbose: bool) -> Result<ElectricityInfo, error::Error> {
+async fn app_query_ele(session: &str, verbose: bool) -> Result<ElectricityInfo, error::Error> {
     // Init authorized handler
     let handler = bind::app::AppHandler::build(session)?;
 
     // Query Bind Info
     if verbose {
         println!("Querying bind info...");
-        let bind_info = handler.query_electricity_binding()?;
+        let bind_info = handler.query_electricity_binding().await?;
         println!("Bind info: {:?}", bind_info);
 
         // Query Electricity Info
         println!("Query electricity info...");
 
-        let electricity_info = handler.query_electricity(&yxy::RoomInfo::from(bind_info))?;
+        let electricity_info = handler
+            .query_electricity(&yxy::RoomInfo::from(bind_info))
+            .await?;
         println!("Electricity info: {:?}", electricity_info);
 
         Ok(electricity_info)
     } else {
-        let bind_info = handler.query_electricity_binding()?;
+        let bind_info = handler.query_electricity_binding().await?;
 
         // Query Electricity Info
-        let electricity_info = handler.query_electricity(&yxy::RoomInfo::from(bind_info))?;
+        let electricity_info = handler
+            .query_electricity(&yxy::RoomInfo::from(bind_info))
+            .await?;
 
         Ok(electricity_info)
     }
