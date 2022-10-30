@@ -10,8 +10,8 @@
 //! Simply using the [`wrapper::app_auth`] wrapper:
 //!
 //! ```rust
-//! # fn run() -> Result<(), Box<dyn std::error::Error>> {
-//! let (session, user_info): (String, yxy::UserInfo) = yxy::wrapper::app_auth("your_user_id")?;
+//! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+//! let (session, user_info): (String, yxy::UserInfo) = yxy::wrapper::app_auth("your_user_id").await?;
 //! #    Ok(())
 //! # }
 //! ```
@@ -20,10 +20,10 @@
 //! ## Query electricity binding
 //!
 //! ```rust
-//! # fn run() -> Result<(), Box<dyn std::error::Error>> {
-//! let (session, user_info) = yxy::wrapper::app_auth("your_user_id")?; // Authorize
+//! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+//! let (session, user_info) = yxy::wrapper::app_auth("your_user_id").await?; // Authorize
 //!
-//! let bind_info: yxy::EleBindInfo = yxy::wrapper::query_ele_bind(&session)?;
+//! let bind_info: yxy::EleBindInfo = yxy::wrapper::query_ele_bind(&session).await?;
 //!
 //! let room_info: yxy::RoomInfo = bind_info.into();
 //! # Ok(())
@@ -35,10 +35,10 @@
 //! 1. Use [`wrapper::query_ele`] wrapper to query by user's electricity binding info.
 //!
 //! ```rust
-//! # fn run() -> Result<(), Box<dyn std::error::Error>> {
-//! let (session, user_info) = yxy::wrapper::app_auth("your_user_id")?; // Authorize
+//! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+//! let (session, user_info) = yxy::wrapper::app_auth("your_user_id").await?; // Authorize
 //!
-//! let info: yxy::ElectricityInfo = yxy::wrapper::query_ele(&session)?;
+//! let info: yxy::ElectricityInfo = yxy::wrapper::query_ele(&session).await?;
 //!
 //! let surplus = &info.surplus_list[0]; // take the first element
 //!
@@ -71,14 +71,14 @@
 //! 2. Using [`wrapper::query_ele_by_room_info`] wrapper. Query by specific [`RoomInfo`].
 //!
 //! ```rust
-//! # fn run() -> Result<(), Box<dyn std::error::Error>> {
-//! let (session, user_info) = yxy::wrapper::app_auth("your_user_id")?; // Authorize
+//! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+//! let (session, user_info) = yxy::wrapper::app_auth("your_user_id").await?; // Authorize
 //!
 //! // you can query binding previously, and it is reusable.
-//! let bind_info: yxy::EleBindInfo = yxy::wrapper::query_ele_bind(&session)?;
+//! let bind_info: yxy::EleBindInfo = yxy::wrapper::query_ele_bind(&session).await?;
 //! let room_info: yxy::RoomInfo = bind_info.into();
 //!
-//! let info: yxy::ElectricityInfo = yxy::wrapper::query_ele_by_room_info(&session, &room_info)?;
+//! let info: yxy::ElectricityInfo = yxy::wrapper::query_ele_by_room_info(&session, &room_info).await?;
 //! # Ok(())
 //! # }
 //! ```
@@ -88,12 +88,12 @@
 //! Example of getting [`LoginInfo`] procedure
 //!
 //! ```rust
-//! # fn login(verbose: bool) -> Result<(), yxy::error::Error> {
+//! # async fn login(verbose: bool) -> Result<(), yxy::error::Error> {
 //! let phone_num = "1234567890";
 //! let handler = yxy::LoginHandler::new()?;
 //!
 //! println!("Querying security token...");
-//! let security_token: yxy::SecurityTokenInfo = handler.get_security_token()?;
+//! let security_token: yxy::SecurityTokenInfo = handler.get_security_token().await?;
 //! if verbose {
 //!     println!("Success: {:?}", security_token);
 //! }
@@ -102,7 +102,7 @@
 //! if security_token.level != 0 {
 //!     // image captcha required
 //!     println!("Image captcha required.");
-//!     let result = handler.get_captcha_image(&security_token.security_token)?;
+//!     let result = handler.get_captcha_image(&security_token.security_token).await?;
 //!
 //!     println!("Captcha: {}", result);
 //!
@@ -119,7 +119,7 @@
 //!     } else {
 //!         Some(&captcha)
 //!     },
-//! )?;
+//! ).await?;
 //!
 //! if user_exists == false {
 //!     eprintln!("Current user is not registered");
@@ -131,7 +131,7 @@
 //! std::io::stdin().read_line(&mut code)?;
 //!
 //! println!("Login...");
-//! let result: yxy::LoginInfo = handler.do_login_by_code(phone_num, &code)?;
+//! let result: yxy::LoginInfo = handler.do_login_by_code(phone_num, &code).await?;
 //! if verbose {
 //!     println!("Login response: {:?}", result);
 //! }

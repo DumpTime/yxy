@@ -309,11 +309,11 @@ impl LoginHandler {
     /// ```no_run
     /// use yxy::bind::login::*;
     /// use yxy::error::Error;
-    /// # fn main() -> Result<(), Error> {
+    /// # async fn run() -> Result<(), Error> {
     /// // Use the UUID of last login device
     /// let handler = LoginHandler::build("d3ae7e7e-9c98-4498-beda-78e9e342a389")?;
-    /// let public_key = handler.get_public_key()?;
-    /// let login_info = handler.do_login_by_password("18888888888", "password", &public_key)?;
+    /// let public_key = handler.get_public_key().await?;
+    /// let login_info = handler.do_login_by_password("18888888888", "password", &public_key).await?;
     ///
     /// # Ok(())
     /// # }

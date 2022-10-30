@@ -382,7 +382,7 @@ impl LoginHandler {
     /// The function will encrypt the password by [`crate::utils::encrypt_password`]
     ///
     /// ```no_run
-    /// use yxy::bind::login::*;
+    /// use yxy::blocking::bind::login::*;
     /// use yxy::error::Error;
     /// # fn main() -> Result<(), Error> {
     /// // Use the UUID of last login device
