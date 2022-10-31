@@ -236,7 +236,7 @@ impl From<EleBindInfo> for RoomInfo {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ElectricityInfo {
     pub school_code: String,
@@ -262,7 +262,7 @@ pub struct ElectricityInfo {
     pub top_up_type_list: Vec<EleTopUpType>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EleSurplus {
     pub surplus: f32,
@@ -276,7 +276,7 @@ pub struct EleSurplus {
 }
 
 /// Type of electricity top up
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EleTopUpType {
     /// type name

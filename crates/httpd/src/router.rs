@@ -10,15 +10,22 @@ use axum::{
 };
 
 pub fn init() -> Router {
-    let app = Router::new()
-        .route("/auth", get(handler::app::auth))
-        .route("/electricity", get(handler::app::electricity::by_token));
-
-    let api = Router::new().nest("/app", app);
+    let v1 = Router::new().nest(
+        "/app",
+        Router::new()
+            .route("/auth", get(handler::app::auth::by_uid))
+            .nest(
+                "/electricity",
+                Router::new().route(
+                    "/subsidy",
+                    get(handler::app::electricity::subsidy::by_token),
+                ),
+            ),
+    );
 
     Router::new()
         .route("/", get(|| async { "Hello, YXY HTTPd" }))
-        .nest("/api", api)
+        .nest("/v1", v1)
         .layer(middleware::from_fn(access_log))
 }
 
@@ -36,7 +43,7 @@ async fn access_log(
 
     let _enter = tracing::span!(tracing::Level::INFO, "ACCESS").entered();
     // log
-    tracing::info!("{} | {} | {}", method, status, uri);
+    tracing::info!("{method} | {status} | {uri}");
 
     Ok(res)
 }
