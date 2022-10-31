@@ -16,10 +16,12 @@ pub fn init() -> Router {
             .route("/auth", get(handler::app::auth::by_uid))
             .nest(
                 "/electricity",
-                Router::new().route(
-                    "/subsidy",
-                    get(handler::app::electricity::subsidy::by_token),
-                ),
+                Router::new()
+                    .route(
+                        "/subsidy",
+                        get(handler::app::electricity::subsidy::by_token),
+                    )
+                    .route("/bind", get(handler::app::electricity::bind::by_token)),
             ),
     );
 
