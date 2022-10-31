@@ -54,9 +54,32 @@ pub mod electricity {
         use serde::{Deserialize, Serialize};
 
         #[derive(Deserialize)]
-        pub struct ByTokenQuery {
+        pub struct TokenQuery {
             /// Session Token
             pub token: String,
+        }
+
+        #[derive(Deserialize)]
+        pub struct RoomInfoRequest {
+            pub token: String,
+            pub area_id: String,
+            pub building_code: String,
+            pub floor_code: String,
+            pub room_code: String,
+        }
+
+        impl RoomInfoRequest {
+            pub fn split(self) -> (String, yxy::RoomInfo) {
+                (
+                    self.token,
+                    yxy::RoomInfo {
+                        area_id: self.area_id,
+                        building_code: self.building_code,
+                        floor_code: self.floor_code,
+                        room_code: self.room_code,
+                    },
+                )
+            }
         }
 
         #[derive(Serialize)]

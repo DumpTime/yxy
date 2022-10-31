@@ -19,16 +19,24 @@ pub fn init() -> Router {
                 Router::new()
                     .route(
                         "/subsidy",
-                        get(handler::app::electricity::subsidy::by_token),
+                        get(handler::app::electricity::subsidy::by_token)
+                            .post(handler::app::electricity::subsidy::by_room_info),
                     )
                     .route("/bind", get(handler::app::electricity::bind::by_token)),
             ),
     );
 
-    Router::new()
+    let router = Router::new()
         .route("/", get(|| async { "Hello, YXY HTTPd" }))
         .nest("/v1", v1)
-        .layer(middleware::from_fn(access_log))
+        .layer(middleware::from_fn(access_log));
+
+    if cfg!(debug_assertions) {
+        use tower_http::trace::TraceLayer;
+        return router.layer(TraceLayer::new_for_http());
+    }
+
+    router
 }
 
 async fn access_log(
