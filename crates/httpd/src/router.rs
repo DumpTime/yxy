@@ -17,6 +17,7 @@ pub fn init() -> Router {
     let api = Router::new().nest("/app", app);
 
     Router::new()
+        .route("/", get(|| async { "Hello, YXY HTTPd" }))
         .nest("/api", api)
         .layer(middleware::from_fn(access_log))
 }
