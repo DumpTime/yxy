@@ -9,17 +9,19 @@ use axum::{
     Router,
 };
 
-pub fn init_router() -> Router {
-    let app = Router::new().route("/auth", get(handler::app::auth));
+pub fn init() -> Router {
+    let app = Router::new()
+        .route("/auth", get(handler::app::auth))
+        .route("/electricity", get(handler::app::electricity::by_token));
 
     let api = Router::new().nest("/app", app);
 
     Router::new()
         .nest("/api", api)
-        .layer(middleware::from_fn(access_logger))
+        .layer(middleware::from_fn(access_log))
 }
 
-async fn access_logger(
+async fn access_log(
     req: Request<Body>,
     next: Next<Body>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {

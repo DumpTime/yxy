@@ -12,7 +12,7 @@ async fn main() {
     // Init global logger
     tracing_subscriber::fmt::init();
 
-    let app = router::init_router();
+    let app = router::init();
 
     tracing::info!("Listening on: {}", addr);
     axum::Server::bind(&addr)

@@ -2,7 +2,7 @@ CC=cc
 APPLE_TARGETS=aarch64-apple-darwin aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin x86_64-apple-ios
 HEADER_FILE=./crates/abi/include/yxy.h
 
-.PHONY: core abi cli all apple clean-xcf xcf clean cbindgen ctest
+.PHONY: core abi cli all apple clean-xcf xcf clean cbindgen ctest httpd server
 
 core:
 	@echo "Building core lib..."
@@ -16,9 +16,17 @@ cli:
 	@echo "Building CLI..."
 	@cargo build -p yxy-cli
 
+httpd:
+	@echo "Building HTTPd..."
+	@cargo build -p yxy-httpd
+
 all:
 	@echo "Building all..."
 	@cargo build
+
+server:
+	@echo "Starting HTTPd..."
+	@cargo run --bin yxy-httpd
 
 test:
 	@echo "Testing..."
