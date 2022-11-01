@@ -30,7 +30,7 @@ pub async fn app_auth(uid: &str) -> Result<(String, app::auth::UserInfo), Error>
 pub async fn query_ele_bind(session: &str) -> Result<app::electricity::EleBindInfo, Error> {
     let handler = app::AppHandler::build(session)?;
 
-    let bind = handler.query_electricity_binding().await?;
+    let bind = handler.binding_info().await?;
 
     Ok(bind)
 }
@@ -47,10 +47,10 @@ pub async fn query_ele(session: &str) -> Result<app::electricity::ElectricityInf
     let handler = app::AppHandler::build(session)?;
 
     // Query Bind Info
-    let bind_info = handler.query_electricity_binding().await?;
+    let bind_info = handler.binding_info().await?;
 
     // Query Electricity Info
-    handler.query_electricity(&bind_info.into()).await
+    handler.query(&bind_info.into()).await
 }
 
 /// Query electricity by [`app::electricity::RoomInfo`]
@@ -63,5 +63,5 @@ pub async fn query_ele_by_room_info(
     // Init authorized handler
     let handler = app::AppHandler::build(session)?;
 
-    handler.query_electricity(room_info).await
+    handler.query(room_info).await
 }

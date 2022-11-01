@@ -21,6 +21,9 @@ pub mod application {
 
     pub const QUERY_ELECTRICITY: &str = super::cc!(BASE_URL, "/app/electric/queryISIMSRoomSurplus");
 
+    pub const QUERY_MY_RECHARGE_RECORDS: &str =
+        super::cc!(BASE_URL, "/app/order/bussisdw/queryListData");
+
     pub const RECHARGE_ELECTRICITY: &str = super::cc!(BASE_URL, "/app/electric/recharge.htm");
 
     pub const GET_SUBMIT_TOKEN: &str = super::cc!(BASE_URL, "/center/common/token/get.htm");
