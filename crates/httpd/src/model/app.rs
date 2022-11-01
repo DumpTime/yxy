@@ -1,5 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 pub mod auth {
-    use serde::{Deserialize, Serialize};
+    use super::*;
 
     #[derive(Deserialize)]
     pub struct Query {
@@ -49,9 +51,10 @@ pub mod auth {
 }
 
 pub mod electricity {
+    use super::*;
 
     pub mod subsidy {
-        use serde::{Deserialize, Serialize};
+        use super::*;
 
         #[derive(Deserialize)]
         pub struct TokenQuery {
@@ -151,7 +154,7 @@ pub mod electricity {
     }
 
     pub mod bind {
-        use serde::{Deserialize, Serialize};
+        use super::*;
 
         #[derive(Deserialize)]
         pub struct Query {
