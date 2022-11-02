@@ -15,6 +15,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 
 type Result = std::result::Result<(), Box<dyn Error>>;
 
+#[ignore]
 #[tokio::test]
 async fn application() {
     use yxy::bind::app::*;
@@ -50,6 +51,7 @@ async fn application() {
     try_join!(task1, task2).unwrap();
 }
 
+#[ignore]
 #[tokio::test]
 async fn auth() -> Result {
     use yxy::wrapper::app_auth;
