@@ -9,7 +9,7 @@ readme = "README.md"
 publish = false
 
 [lib]
-crate-type = ["cdylib", "staticlib"]
+crate-type = ["cdylib"]
 
 [dependencies.yxy]
 path = "../core"
