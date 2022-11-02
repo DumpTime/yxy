@@ -311,7 +311,7 @@ async fn app_query_ele(session: &str, verbose: bool) -> Result<ElectricityInfo, 
         // Query Electricity Info
         println!("Query electricity info...");
 
-        let electricity_info = handler.query(&yxy::RoomInfo::from(bind_info)).await?;
+        let electricity_info = handler.surplus(&yxy::RoomInfo::from(bind_info)).await?;
         println!("Electricity info: {:?}", electricity_info);
 
         Ok(electricity_info)
@@ -319,7 +319,7 @@ async fn app_query_ele(session: &str, verbose: bool) -> Result<ElectricityInfo, 
         let bind_info = handler.binding_info().await?;
 
         // Query Electricity Info
-        let electricity_info = handler.query(&yxy::RoomInfo::from(bind_info)).await?;
+        let electricity_info = handler.surplus(&yxy::RoomInfo::from(bind_info)).await?;
 
         Ok(electricity_info)
     }

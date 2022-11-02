@@ -3,6 +3,7 @@
 use super::AppHandler;
 use crate::blocking::bind::check_response;
 use crate::error::Error;
+use crate::url::application::electricity::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -119,11 +120,7 @@ impl AppHandler {
     pub fn query_electricity_binding(&self) -> Result<EleBindInfo, Error> {
         let form = [("bindType", "3")];
 
-        let mut resp = self
-            .client
-            .post(crate::url::application::QUERY_BIND)
-            .form(&form)
-            .send()?;
+        let mut resp = self.client.post(QUERY_BIND).form(&form).send()?;
 
         check_response(&mut resp)?;
 
@@ -161,11 +158,7 @@ impl AppHandler {
 
     /// Query electricity info
     pub fn query_electricity(&self, info: &RoomInfo) -> Result<ElectricityInfo, Error> {
-        let mut resp = self
-            .client
-            .post(crate::url::application::QUERY_ELECTRICITY)
-            .json(&info)
-            .send()?;
+        let mut resp = self.client.post(QUERY_SURPLUS).json(&info).send()?;
 
         check_response(&mut resp)?;
 
@@ -229,7 +222,7 @@ impl AppHandler {
 
         let mut resp = self
             .client
-            .post(crate::url::application::RECHARGE_ELECTRICITY)
+            .post(RECHARGE)
             .form(&Request {
                 area_id: &info.area_id,
                 building_code: &info.building_code,

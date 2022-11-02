@@ -3,56 +3,73 @@
 use const_format::concatcp as cc;
 
 pub mod auth {
+    use super::*;
+
     pub const BASE_URL: &str = "https://auth.xiaofubao.com";
 
-    pub const OAUTH_URL: &str = super::cc!(BASE_URL, "/authoriz/getCodeV2");
+    pub const OAUTH_URL: &str = cc!(BASE_URL, "/authoriz/getCodeV2");
 }
 
 /// Application URLs
 pub mod application {
+    use super::*;
+
     pub const BASE_URL: &str = "https://application.xiaofubao.com";
 
     /// Auth & user info
     /// - Authorize by OAuth code
     /// - Get user info by UID and session
-    pub const GET_USER_FOR_AUTHORIZE: &str = super::cc!(BASE_URL, "/app/login/getUser4Authorize");
+    pub const GET_USER_FOR_AUTHORIZE: &str = cc!(BASE_URL, "/app/login/getUser4Authorize");
 
-    pub const QUERY_BIND: &str = super::cc!(BASE_URL, "/app/electric/queryBind");
+    pub mod electricity {
+        use super::*;
 
-    pub const QUERY_ELECTRICITY: &str = super::cc!(BASE_URL, "/app/electric/queryISIMSRoomSurplus");
+        pub const QUERY_BIND: &str = cc!(BASE_URL, "/app/electric/queryBind");
 
-    pub const QUERY_MY_RECHARGE_RECORDS: &str =
-        super::cc!(BASE_URL, "/app/order/bussisdw/queryListData");
+        pub const QUERY_SURPLUS: &str = cc!(BASE_URL, "/app/electric/queryISIMSRoomSurplus");
 
-    pub const RECHARGE_ELECTRICITY: &str = super::cc!(BASE_URL, "/app/electric/recharge.htm");
+        pub const QUERY_RECORDS: &str = cc!(BASE_URL, "/app/electric/getISIMSRecords");
 
-    pub const GET_SUBMIT_TOKEN: &str = super::cc!(BASE_URL, "/center/common/token/get.htm");
+        pub const QUERY_MY_RECHARGE_RECORDS: &str =
+            cc!(BASE_URL, "/app/order/bussisdw/queryListData");
+
+        pub const QUERY_RECHARGE_RECORDS: &str =
+            cc!(BASE_URL, "/app/electric/queryISIMSRoomBuyRecord");
+
+        pub const RECHARGE: &str = cc!(BASE_URL, "/app/electric/recharge.htm");
+    }
+
+    pub const GET_SUBMIT_TOKEN: &str = cc!(BASE_URL, "/center/common/token/get.htm");
 }
 
 /// Campus APP API URLs
 pub mod campus {
+    use super::*;
+
     /// *may be a typo*
     pub const BASE_URL: &str = "https://compus.xiaofubao.com";
 
-    pub const GET_SECURITY_TOKEN: &str = super::cc!(BASE_URL, "/common/security/token");
+    pub const GET_SECURITY_TOKEN: &str = cc!(BASE_URL, "/common/security/token");
 
     pub const SEND_VERIFICATION_CODE: &str =
-        super::cc!(BASE_URL, "/compus/user/sendLoginVerificationCode");
+        cc!(BASE_URL, "/compus/user/sendLoginVerificationCode");
 
-    pub const GET_IMAGE_CAPTCHA: &str = super::cc!(BASE_URL, "/common/security/imageCaptcha");
+    pub const GET_IMAGE_CAPTCHA: &str = cc!(BASE_URL, "/common/security/imageCaptcha");
 
-    pub const DO_LOGIN_BY_CODE: &str = super::cc!(BASE_URL, "/login/doLoginByVerificationCode");
+    pub const DO_LOGIN_BY_CODE: &str = cc!(BASE_URL, "/login/doLoginByVerificationCode");
 
-    pub const DO_LOGIN_BY_TOKEN: &str = super::cc!(BASE_URL, "/login/doLoginBySilent");
+    pub const DO_LOGIN_BY_TOKEN: &str = cc!(BASE_URL, "/login/doLoginBySilent");
 
-    pub const GET_PUBLIC_KEY: &str = super::cc!(BASE_URL, "/login/getPublicKey");
+    pub const GET_PUBLIC_KEY: &str = cc!(BASE_URL, "/login/getPublicKey");
 
-    pub const DO_LOGIN_BY_PWD: &str = super::cc!(BASE_URL, "/login/doLoginByPwd");
+    pub const DO_LOGIN_BY_PWD: &str = cc!(BASE_URL, "/login/doLoginByPwd");
 }
 
 /// Payment URLs
 pub mod pay {
+    use super::*;
+
     pub const BASE_URL: &str = "https://pay.xiaofubao.com";
 
-    pub const TO_CASHIER: &str = super::cc!(BASE_URL, "/pay/unified/toCashier.shtml");
+    pub const TO_CASHIER: &str = cc!(BASE_URL, "/pay/unified/toCashier.shtml");
 }

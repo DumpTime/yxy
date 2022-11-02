@@ -50,7 +50,7 @@ pub async fn query_ele(session: &str) -> Result<app::electricity::ElectricityInf
     let bind_info = handler.binding_info().await?;
 
     // Query Electricity Info
-    handler.query(&bind_info.into()).await
+    handler.surplus(&bind_info.into()).await
 }
 
 /// Query electricity by [`app::electricity::RoomInfo`]
@@ -63,5 +63,5 @@ pub async fn query_ele_by_room_info(
     // Init authorized handler
     let handler = app::AppHandler::build(session)?;
 
-    handler.query(room_info).await
+    handler.surplus(room_info).await
 }

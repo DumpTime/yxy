@@ -1,7 +1,7 @@
 //! Electricity APIs
 
-use super::AppHandler;
-use crate::{bind::check_response, error::Error};
+use super::*;
+use crate::url::application::electricity::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -15,12 +15,7 @@ impl AppHandler {
     pub async fn binding_info(&self) -> Result<EleBindInfo, Error> {
         let form = [("bindType", BIND_TYPE)];
 
-        let mut resp = self
-            .client
-            .post(crate::url::application::QUERY_BIND)
-            .form(&form)
-            .send()
-            .await?;
+        let mut resp = self.client.post(QUERY_BIND).form(&form).send().await?;
         check_response(&mut resp).await?;
 
         #[derive(Deserialize)]
@@ -58,13 +53,8 @@ impl AppHandler {
     /// Query electricity info
     ///
     /// Like surplus, subsidy, amount, etc.
-    pub async fn query(&self, info: &RoomInfo) -> Result<ElectricityInfo, Error> {
-        let mut resp = self
-            .client
-            .post(crate::url::application::QUERY_ELECTRICITY)
-            .form(&info)
-            .send()
-            .await?;
+    pub async fn surplus(&self, info: &RoomInfo) -> Result<ElectricityInfo, Error> {
+        let mut resp = self.client.post(QUERY_SURPLUS).form(&info).send().await?;
         check_response(&mut resp).await?;
 
         #[derive(Deserialize)]
@@ -103,7 +93,7 @@ impl AppHandler {
 
         let mut resp = self
             .client
-            .post(crate::url::application::QUERY_MY_RECHARGE_RECORDS)
+            .post(QUERY_MY_RECHARGE_RECORDS)
             .form(&form)
             .send()
             .await?;
@@ -167,7 +157,7 @@ impl AppHandler {
 
         let mut resp = self
             .client
-            .post(crate::url::application::RECHARGE_ELECTRICITY)
+            .post(RECHARGE)
             .form(&Request {
                 area_id: &info.area_id,
                 building_code: &info.building_code,
@@ -181,8 +171,7 @@ impl AppHandler {
             })
             .send()
             .await?;
-
-        crate::bind::check_response(&mut resp).await?;
+        check_response(&mut resp).await?;
 
         #[derive(Deserialize)]
         #[serde(rename_all = "camelCase")]
