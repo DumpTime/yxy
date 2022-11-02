@@ -57,15 +57,15 @@ impl LoginHandler {
             .await?;
         check_response(&mut resp).await?;
 
-        let resp_ser: BasicResponse<SecurityTokenInfo> = resp.json().await?;
-        if !resp_ser.success {
+        let resp: BasicResponse<SecurityTokenInfo> = resp.json().await?;
+        if !resp.success {
             return Err(Error::Runtime(format!(
                 "Get security token failed: {}",
-                resp_ser.message
+                resp.message
             )));
         }
 
-        match resp_ser.data {
+        match resp.data {
             Some(v) => Ok(v),
             None => Err(Error::EmptyResp),
         }
@@ -86,14 +86,14 @@ impl LoginHandler {
             .await?;
         check_response(&mut resp).await?;
 
-        let resp_ser: BasicResponse<String> = resp.json().await?;
-        if !resp_ser.success {
+        let resp: BasicResponse<String> = resp.json().await?;
+        if !resp.success {
             Err(Error::Runtime(format!(
                 "Get image captcha failed: {}",
-                resp_ser.message
+                resp.message
             )))
         } else {
-            Ok(resp_ser.data.unwrap())
+            Ok(resp.data.unwrap())
         }
     }
 
@@ -183,7 +183,7 @@ impl LoginHandler {
 
         let buf = resp.bytes().await?;
 
-        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
+        let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
@@ -193,17 +193,17 @@ impl LoginHandler {
             }
         };
 
-        if !resp_ser.success {
-            if resp_ser.message.starts_with(error_messages::WRONG_SECRET) {
+        if !resp.success {
+            if resp.message.starts_with(error_messages::WRONG_SECRET) {
                 return Err(Error::BadLoginSecret);
             }
 
             return Err(Error::Runtime(format!(
                 "Login error: {{code: {}, msg: {}}}",
-                resp_ser.status_code, resp_ser.message
+                resp.status_code, resp.message
             )));
         }
-        let result = resp_ser.data.unwrap();
+        let result = resp.data.unwrap();
 
         Ok(result)
     }
@@ -232,7 +232,7 @@ impl LoginHandler {
 
         let buf = resp.bytes().await?;
 
-        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
+        let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
@@ -242,17 +242,17 @@ impl LoginHandler {
             }
         };
 
-        if !resp_ser.success {
-            if resp_ser.message.starts_with(error_messages::WRONG_SECRET) {
+        if !resp.success {
+            if resp.message.starts_with(error_messages::WRONG_SECRET) {
                 return Err(Error::BadLoginSecret);
             }
 
             return Err(Error::Runtime(format!(
                 "Login error: {{code: {}, msg: {}}}",
-                resp_ser.status_code, resp_ser.message
+                resp.status_code, resp.message
             )));
         }
-        let result = resp_ser.data.unwrap();
+        let result = resp.data.unwrap();
 
         Ok(result)
     }
@@ -278,7 +278,7 @@ impl LoginHandler {
             public_key: String,
         }
 
-        let resp_ser: BasicResponse<PublicKey> = match serde_json::from_slice(buf.as_ref()) {
+        let resp: BasicResponse<PublicKey> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
@@ -288,14 +288,14 @@ impl LoginHandler {
             }
         };
 
-        if !resp_ser.success {
+        if !resp.success {
             return Err(Error::Runtime(format!(
                 "Get public key error: {{code: {}, msg: {}}}",
-                resp_ser.status_code, resp_ser.message
+                resp.status_code, resp.message
             )));
         }
 
-        Ok(resp_ser.data.unwrap().public_key)
+        Ok(resp.data.unwrap().public_key)
     }
 
     /// Do login by password
@@ -345,7 +345,7 @@ impl LoginHandler {
 
         let buf = resp.bytes().await?;
 
-        let resp_ser: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
+        let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => {
                 return Err(Error::Runtime(format!(
@@ -355,19 +355,19 @@ impl LoginHandler {
             }
         };
 
-        if !resp_ser.success {
-            if resp_ser.message.starts_with(error_messages::WRONG_SECRET) {
+        if !resp.success {
+            if resp.message.starts_with(error_messages::WRONG_SECRET) {
                 return Err(Error::BadLoginSecret);
-            } else if resp_ser.message == error_messages::DEVICE_CHANGED {
+            } else if resp.message == error_messages::DEVICE_CHANGED {
                 return Err(Error::DeviceChanged);
             }
 
             return Err(Error::Runtime(format!(
                 "Login error: {{code: {}, msg: {}}}",
-                resp_ser.status_code, resp_ser.message
+                resp.status_code, resp.message
             )));
         }
-        let result = resp_ser.data.unwrap();
+        let result = resp.data.unwrap();
 
         Ok(result)
     }

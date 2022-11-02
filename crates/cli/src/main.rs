@@ -32,7 +32,7 @@ async fn main() -> Result<(), Box<yxy::error::Error>> {
             None => "./conf.yaml",
         };
 
-        let conf = match conf::Config::parse(conf_path) {
+        let conf = match conf::Config::parse(conf_path).await {
             Ok(v) => v,
             Err(e) => {
                 return Err(Box::new(yxy::error::Error::Runtime(format!(
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<yxy::error::Error>> {
         // Read the session cache
         let session = match &conf.cookie_file {
             None => None,
-            Some(cookie_file) => match std::fs::read_to_string(cookie_file) {
+            Some(cookie_file) => match tokio::fs::read_to_string(cookie_file).await {
                 Ok(v) => {
                     if opts.verbose {
                         println!("Using cached session id: {}", v);

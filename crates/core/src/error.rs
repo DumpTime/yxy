@@ -1,5 +1,6 @@
 //! Library Errors
 
+use bytes::Bytes;
 use thiserror::Error;
 
 /// Library error type
@@ -9,6 +10,8 @@ pub enum Error {
     Runtime(String),
     #[error("Authorization Error: {0}")]
     Auth(String),
+    #[error("JSON deserialize Error: {0}; Data: {1:#?}")]
+    Deserialize(serde_json::Error, Bytes),
     #[error("Empty response.")]
     EmptyResp,
     #[error("No bind info.")]
@@ -35,5 +38,5 @@ pub enum Error {
     #[error(transparent)]
     Base64Decode(#[from] base64::DecodeError),
     #[error(transparent)]
-    Serde(#[from] serde_json::Error),
+    SerdeJSON(#[from] serde_json::Error),
 }

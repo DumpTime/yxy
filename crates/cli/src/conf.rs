@@ -19,10 +19,10 @@ pub struct ServerChan {
 }
 
 impl Config {
-    pub fn parse(path: &str) -> Result<Self, Box<dyn Error>> {
-        let config_f = std::fs::File::open(path)?;
+    pub async fn parse(path: &str) -> Result<Self, Box<dyn Error>> {
+        let reader = tokio::fs::File::open(path).await?;
 
-        let config: Config = serde_yaml::from_reader(config_f)?;
+        let config: Config = serde_yaml::from_reader(reader.into_std().await)?;
 
         Ok(config)
     }

@@ -108,7 +108,13 @@ impl AppHandler {
             pub success: bool,
         }
 
-        let resp: Response = resp.json().await?;
+        let buf = resp.bytes().await?;
+
+        let resp: Response = match serde_json::from_slice(buf.as_ref()) {
+            Ok(v) => v,
+            Err(e) => return Err(Error::Deserialize(e, buf)),
+        };
+
         if !resp.success {
             if resp.status_code == 204 {
                 return Err(Error::Auth("Unauthorized".to_string()));
@@ -317,13 +323,13 @@ pub struct EleTopUpType {
     pub cztype: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MyRecharge {
     pub id: String,
     pub order_no: String,
-    pub pay_money: i64,
-    pub total_money: i64,
+    pub pay_money: f64,
+    pub total_money: f64,
     pub pay_type: String,
     pub pay_no: String,
     pub create_time: String,
@@ -333,7 +339,7 @@ pub struct MyRecharge {
     pub pay_time: String,
     pub remark: String,
     pub logo: String,
-    pub fee_money: i64,
+    pub fee_money: f64,
     pub week: String,
     pub day_date: String,
     pub month: String,
@@ -341,13 +347,11 @@ pub struct MyRecharge {
     pub center_order_statistics_vo: CenterOrderStatisticsVo,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CenterOrderStatisticsVo {
     pub months: String,
-    #[serde(rename = "totalTranMoney")]
     pub total_tran_money: String,
-    #[serde(rename = "totalRealMoney")]
     pub total_real_money: String,
-    #[serde(rename = "totalCount")]
     pub total_count: i64,
 }

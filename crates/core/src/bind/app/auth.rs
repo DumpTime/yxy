@@ -185,7 +185,7 @@ impl super::AppHandler {
     }
 
     /// Get user info
-    pub async fn get_user_info(&self) -> Result<UserInfo, Error> {
+    pub async fn user_info(&self) -> Result<UserInfo, Error> {
         // Form data
         let params = [("userId", rand::random::<u8>())];
 
@@ -229,7 +229,7 @@ struct AuthResponse {
 }
 
 /// User info provided by platform
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfo {
     /// UID: User ID

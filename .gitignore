@@ -12,3 +12,4 @@ Cargo.lock
 # temp & conf
 conf.yaml
 cookie.tmp
+test.yaml
