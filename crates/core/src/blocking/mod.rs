@@ -1,3 +1,7 @@
+//! Using [`reqwest`] blocking clients
+//!
+//! Provides backward compatibility only, not recommended for new code.
+
 pub mod bind;
 pub mod wrapper;
 
