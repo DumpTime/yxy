@@ -176,6 +176,6 @@ pub mod wrapper;
 pub mod blocking;
 
 pub use bind::app::auth::UserInfo;
-pub use bind::app::electricity::{EleBindInfo, ElectricityInfo, RoomInfo};
+pub use bind::app::electricity::{BindInfo, RoomInfo, SurplusInfo};
 pub use bind::app::AppHandler;
 pub use bind::login::{LoginHandler, LoginInfo, SecurityTokenInfo};

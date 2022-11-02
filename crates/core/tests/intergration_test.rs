@@ -2,6 +2,7 @@ mod common;
 
 use common::Config;
 use once_cell::sync::Lazy;
+
 use std::{error::Error, path::PathBuf, sync::Arc};
 use tokio::try_join;
 
@@ -19,6 +20,7 @@ type Result = std::result::Result<(), Box<dyn Error>>;
 #[tokio::test]
 async fn application() {
     use yxy::bind::app::*;
+    use yxy::RoomInfo;
 
     let handler = Arc::new(AppHandler::build(&CONFIG.session_token).unwrap());
 
@@ -27,9 +29,12 @@ async fn application() {
         let bind_info = h.binding_info().await.unwrap();
         println!("{:#?}", bind_info);
 
+        let room_info = Arc::new(RoomInfo::from(bind_info));
+
         let h1 = h.clone();
+        let ri = room_info.clone();
         let task1 = tokio::spawn(async move {
-            let ele_info = h1.surplus(&bind_info.into()).await.unwrap();
+            let ele_info = h1.surplus(&ri).await.unwrap();
             println!("{:#?}", ele_info);
         });
 
@@ -39,7 +44,14 @@ async fn application() {
             println!("{:#?}", record);
         });
 
-        try_join!(task1, task2).unwrap();
+        let h1 = h.clone();
+        let ri = room_info.clone();
+        let task3 = tokio::spawn(async move {
+            let record = h1.recharge_records(1, &ri).await.unwrap();
+            println!("{:#?}", record);
+        });
+
+        try_join!(task1, task2, task3).unwrap();
     });
 
     let h = handler.clone();
@@ -57,7 +69,7 @@ async fn auth() -> Result {
     use yxy::wrapper::app_auth;
 
     let (session_token, user_info) = app_auth(&CONFIG.uid).await?;
-    println!("session_token: {session_token}, {user_info:#?}");
+    println!("session_token: {session_token}\n{user_info:#?}");
 
     Ok(())
 }

@@ -12,7 +12,7 @@ impl AppHandler {
     /// Query Bind infos
     ///
     /// Only return one binding info from list
-    pub async fn binding_info(&self) -> Result<EleBindInfo, Error> {
+    pub async fn binding_info(&self) -> Result<BindInfo, Error> {
         let form = [("bindType", BIND_TYPE)];
 
         let mut resp = self.client.post(QUERY_BIND).form(&form).send().await?;
@@ -25,7 +25,7 @@ impl AppHandler {
             pub success: bool,
             pub total: Option<u32>,
             pub message: Option<String>,
-            pub rows: Option<Vec<EleBindInfo>>,
+            pub rows: Option<Vec<BindInfo>>,
         }
 
         let resp: Response = resp.json().await?;
@@ -53,7 +53,7 @@ impl AppHandler {
     /// Query electricity info
     ///
     /// Like surplus, subsidy, amount, etc.
-    pub async fn surplus(&self, info: &RoomInfo) -> Result<ElectricityInfo, Error> {
+    pub async fn surplus(&self, info: &RoomInfo) -> Result<SurplusInfo, Error> {
         let mut resp = self.client.post(QUERY_SURPLUS).form(&info).send().await?;
         check_response(&mut resp).await?;
 
@@ -63,7 +63,7 @@ impl AppHandler {
             pub status_code: i32,
             pub success: bool,
             pub message: String,
-            pub data: Option<ElectricityInfo>,
+            pub data: Option<SurplusInfo>,
         }
         let resp: Response = resp.json().await?;
 
@@ -87,9 +87,9 @@ impl AppHandler {
     /// Query my recharge records
     ///
     /// Returns [`MyRecharge`] list
-    pub async fn my_recharge_records(&self, page: u32) -> Result<Vec<MyRecharge>, Error> {
+    pub async fn my_recharge_records(&self, page: u32) -> Result<Vec<MyRechargeRecord>, Error> {
         let page = page.to_string();
-        let form = [("page", page.as_str()), ("subType", SUB_TYPE)];
+        let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
 
         let mut resp = self
             .client
@@ -103,7 +103,61 @@ impl AppHandler {
         #[serde(rename_all = "camelCase")]
         pub struct Response {
             pub status_code: i64,
-            pub rows: Vec<MyRecharge>,
+            pub rows: Vec<MyRechargeRecord>,
+            pub total: i64,
+            pub success: bool,
+        }
+
+        let buf = resp.bytes().await?;
+
+        let resp: Response = match serde_json::from_slice(buf.as_ref()) {
+            Ok(v) => v,
+            Err(e) => return Err(Error::Deserialize(e, buf)),
+        };
+
+        if !resp.success {
+            if resp.status_code == 204 {
+                return Err(Error::Auth("Unauthorized".to_string()));
+            }
+            return Err(Error::Runtime(format!(
+                "Fail to query recharge record: {}",
+                resp.status_code
+            )));
+        } else if resp.total == 0 {
+            return Err(Error::EmptyResp);
+        }
+
+        Ok(resp.rows)
+    }
+
+    pub async fn recharge_records(
+        &self,
+        page: u32,
+        room_info: &RoomInfo,
+    ) -> Result<Vec<RechargeRecord>, Error> {
+        let page = page.to_string();
+        let form = [
+            ("currentPage", page.as_str()),
+            ("subType", SUB_TYPE),
+            ("areaId", &room_info.area_id),
+            ("buildingCode", &room_info.building_code),
+            ("floorCode", &room_info.floor_code),
+            ("roomCode", &room_info.room_code),
+        ];
+
+        let mut resp = self
+            .client
+            .post(QUERY_RECHARGE_RECORDS)
+            .form(&form)
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
+
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Response {
+            pub status_code: i64,
+            pub rows: Vec<RechargeRecord>,
             pub total: i64,
             pub success: bool,
         }
@@ -220,7 +274,7 @@ impl AppHandler {
 /// Electricity biding information
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EleBindInfo {
+pub struct BindInfo {
     pub id: String,
     pub school_code: String,
     pub school_name: String,
@@ -248,11 +302,11 @@ pub struct RoomInfo {
     pub room_code: String,
 }
 
-impl From<&EleBindInfo> for RoomInfo {
+impl From<&BindInfo> for RoomInfo {
     /// Extract [`crate::RoomInfo`] from [`crate::EleBindInfo`]
     ///
     /// Using [`Clone`] trait
-    fn from(info: &EleBindInfo) -> Self {
+    fn from(info: &BindInfo) -> Self {
         Self {
             area_id: info.area_id.to_string(),
             building_code: info.building_code.clone(),
@@ -262,9 +316,9 @@ impl From<&EleBindInfo> for RoomInfo {
     }
 }
 
-impl From<EleBindInfo> for RoomInfo {
+impl From<BindInfo> for RoomInfo {
     /// Extract [`crate::RoomInfo`] from [`crate::EleBindInfo`]
-    fn from(info: EleBindInfo) -> Self {
+    fn from(info: BindInfo) -> Self {
         Self {
             area_id: info.area_id,
             building_code: info.building_code,
@@ -276,7 +330,7 @@ impl From<EleBindInfo> for RoomInfo {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ElectricityInfo {
+pub struct SurplusInfo {
     pub school_code: String,
     pub area_id: String,
     pub building_code: String,
@@ -295,14 +349,14 @@ pub struct ElectricityInfo {
     pub record_show: u8,
     pub style: u8,
     /// Surplus details, usually contains only one element
-    pub surplus_list: Vec<EleSurplus>,
+    pub surplus_list: Vec<SurplusDetail>,
     /// Top up type, usually contains only one element
     pub top_up_type_list: Vec<EleTopUpType>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EleSurplus {
+pub struct SurplusDetail {
     pub surplus: f32,
     pub amount: f32,
     pub subsidy: f32,
@@ -325,7 +379,7 @@ pub struct EleTopUpType {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MyRecharge {
+pub struct MyRechargeRecord {
     pub id: String,
     pub order_no: String,
     pub pay_money: f64,
@@ -354,4 +408,14 @@ pub struct CenterOrderStatisticsVo {
     pub total_tran_money: String,
     pub total_real_money: String,
     pub total_count: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RechargeRecord {
+    pub roomdm: String,
+    pub datetime: String,
+    pub buytpe: String,
+    pub buyusingtpe: String,
+    pub money: String,
+    pub issend: String,
 }

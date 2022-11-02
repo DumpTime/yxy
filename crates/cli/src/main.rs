@@ -104,7 +104,7 @@ async fn main() -> Result<(), Box<yxy::error::Error>> {
 }
 
 /// fmt & print electricity info
-fn print_ele(info: &yxy::ElectricityInfo) {
+fn print_ele(info: &yxy::SurplusInfo) {
     let surplus = &info.surplus_list[0];
     println!(
         "
@@ -131,7 +131,7 @@ Subsidy : {} kW·h | ￥{}
 }
 
 /// fmt electricity info in markdown style
-pub fn fmt_ele_md(info: &yxy::ElectricityInfo) -> String {
+pub fn fmt_ele_md(info: &yxy::SurplusInfo) -> String {
     let surplus = &info.surplus_list[0];
     format!(
         "\
@@ -241,7 +241,7 @@ async fn query_ele(
     uid: &str,
     mut session: Option<String>,
     verbose: bool,
-) -> Result<(ElectricityInfo, Option<String>), error::Error> {
+) -> Result<(SurplusInfo, Option<String>), error::Error> {
     let mut tried = false;
     loop {
         if session.is_none() {
@@ -298,7 +298,7 @@ async fn app_auth(id: &str, verbose: bool) -> Result<(String, UserInfo), error::
 }
 
 /// Application sub-procedure
-async fn app_query_ele(session: &str, verbose: bool) -> Result<ElectricityInfo, error::Error> {
+async fn app_query_ele(session: &str, verbose: bool) -> Result<SurplusInfo, error::Error> {
     // Init authorized handler
     let handler = bind::app::AppHandler::build(session)?;
 

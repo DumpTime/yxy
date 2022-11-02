@@ -27,7 +27,7 @@ pub async fn app_auth(uid: &str) -> Result<(String, app::auth::UserInfo), Error>
 /// Wrapper of user's electricity binding info query procedure.
 ///
 /// If no binding info, return Err([`Error::NoBind`])
-pub async fn query_ele_bind(session: &str) -> Result<app::electricity::EleBindInfo, Error> {
+pub async fn query_ele_bind(session: &str) -> Result<app::electricity::BindInfo, Error> {
     let handler = app::AppHandler::build(session)?;
 
     let bind = handler.binding_info().await?;
@@ -42,7 +42,7 @@ pub async fn query_ele_bind(session: &str) -> Result<app::electricity::EleBindIn
 /// Default query electricity by user's electricity(room) binding info.
 ///
 /// If no binding info, return Err([`Error::NoBind`])
-pub async fn query_ele(session: &str) -> Result<app::electricity::ElectricityInfo, Error> {
+pub async fn query_ele(session: &str) -> Result<app::electricity::SurplusInfo, Error> {
     // Init authorized handler
     let handler = app::AppHandler::build(session)?;
 
@@ -59,7 +59,7 @@ pub async fn query_ele(session: &str) -> Result<app::electricity::ElectricityInf
 pub async fn query_ele_by_room_info(
     session: &str,
     room_info: &app::electricity::RoomInfo,
-) -> Result<app::electricity::ElectricityInfo, Error> {
+) -> Result<app::electricity::SurplusInfo, Error> {
     // Init authorized handler
     let handler = app::AppHandler::build(session)?;
 

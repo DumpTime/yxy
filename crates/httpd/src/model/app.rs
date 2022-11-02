@@ -111,7 +111,7 @@ pub mod electricity {
         }
 
         impl Response {
-            pub fn build(mut v: yxy::ElectricityInfo) -> Self {
+            pub fn build(mut v: yxy::SurplusInfo) -> Self {
                 if let Some(s) = v.surplus_list.pop() {
                     Self {
                         school_code: v.school_code,
@@ -180,7 +180,7 @@ pub mod electricity {
         }
 
         impl Response {
-            pub fn build(v: yxy::EleBindInfo) -> Self {
+            pub fn build(v: yxy::BindInfo) -> Self {
                 Self {
                     id: v.id,
                     school_code: v.school_code,
