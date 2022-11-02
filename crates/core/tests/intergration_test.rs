@@ -65,7 +65,7 @@ async fn application() {
 
 #[ignore]
 #[tokio::test]
-async fn auth() -> Result {
+async fn app_auth() -> Result {
     use yxy::wrapper::app_auth;
 
     let (session_token, user_info) = app_auth(&CONFIG.uid).await?;

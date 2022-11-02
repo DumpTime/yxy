@@ -86,7 +86,7 @@ impl AppHandler {
 
     /// Query my recharge records
     ///
-    /// Returns [`MyRecharge`] list
+    /// Returns [`MyRechargeRecord`] list
     pub async fn my_recharge_records(&self, page: u32) -> Result<Vec<MyRechargeRecord>, Error> {
         let page = page.to_string();
         let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
@@ -303,7 +303,7 @@ pub struct RoomInfo {
 }
 
 impl From<&BindInfo> for RoomInfo {
-    /// Extract [`crate::RoomInfo`] from [`crate::EleBindInfo`]
+    /// Extract [`RoomInfo`] from [`BindInfo`]
     ///
     /// Using [`Clone`] trait
     fn from(info: &BindInfo) -> Self {
@@ -317,7 +317,7 @@ impl From<&BindInfo> for RoomInfo {
 }
 
 impl From<BindInfo> for RoomInfo {
-    /// Extract [`crate::RoomInfo`] from [`crate::EleBindInfo`]
+    /// Extract [`crate::RoomInfo`] from [`BindInfo`]
     fn from(info: BindInfo) -> Self {
         Self {
             area_id: info.area_id,

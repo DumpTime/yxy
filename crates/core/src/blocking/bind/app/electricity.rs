@@ -39,7 +39,7 @@ pub struct RoomInfo {
 }
 
 impl From<&EleBindInfo> for RoomInfo {
-    /// Extract [`crate::RoomInfo`] from [`crate::EleBindInfo`]
+    /// Extract [`crate::RoomInfo`] from [`EleBindInfo`]
     ///
     /// Using [`Clone`] trait
     fn from(info: &EleBindInfo) -> Self {
@@ -53,7 +53,7 @@ impl From<&EleBindInfo> for RoomInfo {
 }
 
 impl From<EleBindInfo> for RoomInfo {
-    /// Extract [`crate::RoomInfo`] from [`crate::EleBindInfo`]
+    /// Extract [`RoomInfo`] from [`EleBindInfo`]
     fn from(info: EleBindInfo) -> Self {
         Self {
             area_id: info.area_id,

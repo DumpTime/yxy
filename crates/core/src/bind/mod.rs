@@ -37,7 +37,7 @@ pub fn build_default_client() -> Result<Client, Error> {
     Ok(result)
 }
 
-/// Build non-redirect [`reqwest::blocking::Client`].
+/// Build non-redirect [`reqwest::Client`].
 ///
 /// This client is used to request OAuth code.
 pub fn build_non_redirect_client() -> Result<Client, Error> {

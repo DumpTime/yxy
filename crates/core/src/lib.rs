@@ -23,7 +23,7 @@
 //! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
 //! let (session, user_info) = yxy::wrapper::app_auth("your_user_id").await?; // Authorize
 //!
-//! let bind_info: yxy::EleBindInfo = yxy::wrapper::query_ele_bind(&session).await?;
+//! let bind_info: yxy::BindInfo = yxy::wrapper::query_ele_bind(&session).await?;
 //!
 //! let room_info: yxy::RoomInfo = bind_info.into();
 //! # Ok(())
@@ -38,7 +38,7 @@
 //! # async fn run() -> Result<(), Box<dyn std::error::Error>> {
 //! let (session, user_info) = yxy::wrapper::app_auth("your_user_id").await?; // Authorize
 //!
-//! let info: yxy::ElectricityInfo = yxy::wrapper::query_ele(&session).await?;
+//! let info: yxy::SurplusInfo = yxy::wrapper::query_ele(&session).await?;
 //!
 //! let surplus = &info.surplus_list[0]; // take the first element
 //!
@@ -75,10 +75,10 @@
 //! let (session, user_info) = yxy::wrapper::app_auth("your_user_id").await?; // Authorize
 //!
 //! // you can query binding previously, and it is reusable.
-//! let bind_info: yxy::EleBindInfo = yxy::wrapper::query_ele_bind(&session).await?;
+//! let bind_info: yxy::BindInfo = yxy::wrapper::query_ele_bind(&session).await?;
 //! let room_info: yxy::RoomInfo = bind_info.into();
 //!
-//! let info: yxy::ElectricityInfo = yxy::wrapper::query_ele_by_room_info(&session, &room_info).await?;
+//! let info: yxy::SurplusInfo = yxy::wrapper::query_ele_by_room_info(&session, &room_info).await?;
 //! # Ok(())
 //! # }
 //! ```
