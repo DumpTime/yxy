@@ -7,7 +7,7 @@ use reqwest::{
 use serde::Deserialize;
 use std::{sync::Arc, time::Duration};
 
-use crate::error::Error;
+use super::*;
 
 /// Extract code value from redirection URL query string
 ///
@@ -64,7 +64,7 @@ fn extract_code(url: &str) -> Option<String> {
 /// ```
 ///
 /// **Must use a none redirect policy client**
-pub async fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> {
+pub async fn get_oauth_code(client: &Client, id: &str) -> Result<String> {
     let query = [
         ("bindSkip", "1"),
         ("authType", "2"),
@@ -98,7 +98,7 @@ pub async fn get_oauth_code(client: &Client, id: &str) -> Result<String, Error> 
 }
 
 /// Authorize the handler and fetch user infos
-pub async fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo), Error> {
+pub async fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo)> {
     // Form data
     let params = [("code", code)];
 
@@ -143,7 +143,7 @@ pub async fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo)
 
 impl super::AppHandler {
     /// Create new app handler with authorize
-    pub async fn build_by_uid(uid: &str) -> Result<Self, Error> {
+    pub async fn build_by_uid(uid: &str) -> Result<Self> {
         // Store session in cookie jar
         let jar = Jar::default();
 
@@ -185,7 +185,7 @@ impl super::AppHandler {
     }
 
     /// Get user info
-    pub async fn user_info(&self) -> Result<UserInfo, Error> {
+    pub async fn user_info(&self) -> Result<UserInfo> {
         // Form data
         let params = [("userId", rand::random::<u8>())];
 

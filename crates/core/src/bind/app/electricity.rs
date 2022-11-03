@@ -99,18 +99,9 @@ impl AppHandler {
             .await?;
         check_response(&mut resp).await?;
 
-        #[derive(Deserialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct Response {
-            pub status_code: i64,
-            pub rows: Vec<MyRechargeRecord>,
-            pub total: i64,
-            pub success: bool,
-        }
-
         let buf = resp.bytes().await?;
 
-        let resp: Response = match serde_json::from_slice(buf.as_ref()) {
+        let resp: Response<MyRechargeRecord> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => return Err(Error::Deserialize(e, buf)),
         };
@@ -130,8 +121,47 @@ impl AppHandler {
         Ok(resp.rows)
     }
 
-    pub async fn usage_records(&self, _room_info: RoomInfo, _md_type: &str) -> Result<()> {
-        todo!()
+    pub async fn usage_records(
+        &self,
+        room_info: RoomInfo,
+        md_type: &str,
+    ) -> Result<Vec<UsageRecord>> {
+        let form = [
+            ("mdType", md_type),
+            ("areaId", &room_info.area_id),
+            ("buildingCode", &room_info.building_code),
+            ("floorCode", &room_info.floor_code),
+            ("roomCode", &room_info.room_code),
+        ];
+
+        let mut resp = self
+            .client
+            .post(QUERY_USAGE_RECORDS)
+            .form(&form)
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
+
+        let buf = resp.bytes().await?;
+
+        let resp: Response<UsageRecord> = match serde_json::from_slice(buf.as_ref()) {
+            Ok(v) => v,
+            Err(e) => return Err(Error::Deserialize(e, buf)),
+        };
+
+        if !resp.success {
+            if resp.status_code == 204 {
+                return Err(Error::Auth("Unauthorized".to_string()));
+            }
+            return Err(Error::Runtime(format!(
+                "Fail to query recharge record: {}",
+                resp.status_code
+            )));
+        } else if resp.total == 0 {
+            return Err(Error::EmptyResp);
+        }
+
+        Ok(resp.rows)
     }
 
     pub async fn recharge_records(
@@ -157,18 +187,9 @@ impl AppHandler {
             .await?;
         check_response(&mut resp).await?;
 
-        #[derive(Deserialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct Response {
-            pub status_code: i64,
-            pub rows: Vec<RechargeRecord>,
-            pub total: i64,
-            pub success: bool,
-        }
-
         let buf = resp.bytes().await?;
 
-        let resp: Response = match serde_json::from_slice(buf.as_ref()) {
+        let resp: Response<RechargeRecord> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => return Err(Error::Deserialize(e, buf)),
         };
@@ -381,6 +402,15 @@ pub struct EleTopUpType {
     pub cztype: String,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Response<T> {
+    pub status_code: i64,
+    pub rows: Vec<T>,
+    pub total: i64,
+    pub success: bool,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MyRechargeRecord {
@@ -412,6 +442,13 @@ pub struct CenterOrderStatisticsVo {
     pub total_tran_money: String,
     pub total_real_money: String,
     pub total_count: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UsageRecord {
+    pub roomdm: String,
+    pub datetime: String,
+    pub used: String,
 }
 
 #[derive(Debug, Deserialize)]

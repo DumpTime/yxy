@@ -28,7 +28,7 @@ pub mod application {
 
         pub const QUERY_SURPLUS: &str = cc!(BASE_URL, "/app/electric/queryISIMSRoomSurplus");
 
-        pub const QUERY_RECORDS: &str = cc!(BASE_URL, "/app/electric/getISIMSRecords");
+        pub const QUERY_USAGE_RECORDS: &str = cc!(BASE_URL, "/app/electric/getISIMSRecords");
 
         pub const QUERY_MY_RECHARGE_RECORDS: &str =
             cc!(BASE_URL, "/app/order/bussisdw/queryListData");
