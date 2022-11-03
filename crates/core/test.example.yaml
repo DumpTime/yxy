@@ -1,0 +1,6 @@
+# Example config of integration test
+uid: "123123123"
+phone_num: "123123"
+password: "123123"
+session_token: 12345678-1231-1231-0123-000000000000
+device_id: 123123-123132
