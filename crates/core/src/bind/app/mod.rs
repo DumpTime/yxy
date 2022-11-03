@@ -6,6 +6,7 @@ pub mod auth;
 pub mod common;
 pub mod electricity;
 
+use super::Result;
 use crate::bind::check_response;
 use crate::error::Error;
 
@@ -24,7 +25,7 @@ pub struct AppHandler {
 
 impl AppHandler {
     /// Using session string to create
-    pub fn build(session: &str) -> Result<Self, Error> {
+    pub fn build(session: &str) -> Result<Self> {
         Ok(Self {
             client: {
                 // Store session in cookie jar

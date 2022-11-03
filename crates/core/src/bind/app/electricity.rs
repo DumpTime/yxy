@@ -12,7 +12,7 @@ impl AppHandler {
     /// Query Bind infos
     ///
     /// Only return one binding info from list
-    pub async fn binding_info(&self) -> Result<BindInfo, Error> {
+    pub async fn binding_info(&self) -> Result<BindInfo> {
         let form = [("bindType", BIND_TYPE)];
 
         let mut resp = self.client.post(QUERY_BIND).form(&form).send().await?;
@@ -53,7 +53,7 @@ impl AppHandler {
     /// Query electricity info
     ///
     /// Like surplus, subsidy, amount, etc.
-    pub async fn surplus(&self, info: &RoomInfo) -> Result<SurplusInfo, Error> {
+    pub async fn surplus(&self, info: &RoomInfo) -> Result<SurplusInfo> {
         let mut resp = self.client.post(QUERY_SURPLUS).form(&info).send().await?;
         check_response(&mut resp).await?;
 
@@ -87,7 +87,7 @@ impl AppHandler {
     /// Query my recharge records
     ///
     /// Returns [`MyRechargeRecord`] list
-    pub async fn my_recharge_records(&self, page: u32) -> Result<Vec<MyRechargeRecord>, Error> {
+    pub async fn my_recharge_records(&self, page: u32) -> Result<Vec<MyRechargeRecord>> {
         let page = page.to_string();
         let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
 
@@ -130,11 +130,15 @@ impl AppHandler {
         Ok(resp.rows)
     }
 
+    pub async fn usage_records(&self, _room_info: RoomInfo, _md_type: &str) -> Result<()> {
+        todo!()
+    }
+
     pub async fn recharge_records(
         &self,
         page: u32,
         room_info: &RoomInfo,
-    ) -> Result<Vec<RechargeRecord>, Error> {
+    ) -> Result<Vec<RechargeRecord>> {
         let page = page.to_string();
         let form = [
             ("currentPage", page.as_str()),
@@ -200,7 +204,7 @@ impl AppHandler {
         mdname: &str,
         submit_token: &str,
         uid: &str,
-    ) -> Result<String, Error> {
+    ) -> Result<String> {
         #[derive(Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Request<'a, 'b> {

@@ -8,7 +8,6 @@ use reqwest::{Client, Response};
 use std::time::Duration;
 
 use crate::error::Error;
-use crate::url;
 
 // Constant values
 const OS_TYPE: &str = "iOS";
@@ -26,8 +25,10 @@ const USER_AGENT: &str = const_format::formatcp!(
 );
 const CLIENT_ID: &str = "65l09sfwa9ao2dc";
 
+type Result<T> = std::result::Result<T, Error>;
+
 /// Build a default [`reqwest::Client`].
-pub fn build_default_client() -> Result<Client, Error> {
+pub fn build_default_client() -> Result<Client> {
     let builder = Client::builder();
     let result = builder
         .connect_timeout(Duration::new(5, 0))
@@ -40,7 +41,7 @@ pub fn build_default_client() -> Result<Client, Error> {
 /// Build non-redirect [`reqwest::Client`].
 ///
 /// This client is used to request OAuth code.
-pub fn build_non_redirect_client() -> Result<Client, Error> {
+pub fn build_non_redirect_client() -> Result<Client> {
     let builder = Client::builder();
     let result = builder
         .connect_timeout(Duration::new(5, 0))
@@ -52,7 +53,7 @@ pub fn build_non_redirect_client() -> Result<Client, Error> {
 }
 
 /// Check response status code.
-async fn check_response(res: &mut Response) -> Result<(), Error> {
+async fn check_response(res: &mut Response) -> Result<()> {
     if !res.status().is_success() {
         let text = res.chunk().await?;
         if let Some(text) = text {

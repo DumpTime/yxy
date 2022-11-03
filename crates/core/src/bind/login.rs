@@ -5,8 +5,9 @@ use aes::Aes128;
 use reqwest::Client;
 use serde::Deserialize;
 
-use super::{check_response, url};
+use super::{check_response, Result};
 use crate::error::Error;
+use crate::url::campus::login::*;
 use crate::utils::{md5, pkcs7_padding};
 
 /// Handle of login procedure
@@ -18,7 +19,7 @@ pub struct LoginHandler {
 
 impl LoginHandler {
     /// Create handler with generated UUID in place of `device_id`
-    pub fn new() -> Result<Self, Error> {
+    pub fn new() -> Result<Self> {
         let device_id = uuid::Uuid::new_v4().to_string().to_uppercase();
 
         Ok(Self {
@@ -28,7 +29,7 @@ impl LoginHandler {
     }
 
     /// Init handler by specific device id
-    pub fn build(device_id: &str) -> Result<Self, Error> {
+    pub fn build(device_id: &str) -> Result<Self> {
         Ok(Self {
             device_id: device_id.to_string(),
             client: init_app_sim_client(device_id)?,
@@ -46,12 +47,12 @@ impl LoginHandler {
     }
 
     /// Return security token & level
-    pub async fn get_security_token(&self) -> Result<SecurityTokenInfo, Error> {
+    pub async fn get_security_token(&self) -> Result<SecurityTokenInfo> {
         let body = self.basic_request_body();
 
         let mut resp = self
             .client
-            .post(url::campus::GET_SECURITY_TOKEN)
+            .post(GET_SECURITY_TOKEN)
             .form(&body)
             .send()
             .await?;
@@ -74,13 +75,13 @@ impl LoginHandler {
     /// Get image captcha
     ///
     /// Return image captcha base64 string
-    pub async fn get_captcha_image(&self, security_token: &str) -> Result<String, Error> {
+    pub async fn get_captcha_image(&self, security_token: &str) -> Result<String> {
         let mut body = self.basic_request_body();
         body.push(("securityToken", security_token));
 
         let mut resp = self
             .client
-            .post(url::campus::GET_IMAGE_CAPTCHA)
+            .post(GET_IMAGE_CAPTCHA)
             .form(&body)
             .send()
             .await?;
@@ -103,7 +104,7 @@ impl LoginHandler {
         phone_num: &str,
         security_token: &str,
         captcha: Option<&str>,
-    ) -> Result<bool, Error> {
+    ) -> Result<bool> {
         let mut body = self.basic_request_body();
 
         let app_security_token = app_security_token(security_token, &self.device_id)?; // Important
@@ -120,7 +121,7 @@ impl LoginHandler {
 
         let mut resp = self
             .client
-            .post(url::campus::SEND_VERIFICATION_CODE)
+            .post(SEND_VERIFICATION_CODE)
             .form(&body)
             .send()
             .await?;
@@ -164,7 +165,7 @@ impl LoginHandler {
     /// Do login by verification code
     ///
     /// return [`LoginInfo`]
-    pub async fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo, Error> {
+    pub async fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo> {
         let mut body = self.basic_request_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("mobilePhone", phone_num));
@@ -175,7 +176,7 @@ impl LoginHandler {
 
         let mut resp = self
             .client
-            .post(url::campus::DO_LOGIN_BY_CODE)
+            .post(DO_LOGIN_BY_CODE)
             .form(&body)
             .send()
             .await?;
@@ -213,7 +214,7 @@ impl LoginHandler {
     /// Bind to [`crate::url::campus::DO_LOGIN_BY_TOKEN`]
     ///
     /// Used to refresh token and get [`LoginInfo`]
-    pub async fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo, Error> {
+    pub async fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo> {
         let mut body = self.basic_request_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("osType", super::OS_TYPE));
@@ -224,7 +225,7 @@ impl LoginHandler {
 
         let mut resp = self
             .client
-            .post(url::campus::DO_LOGIN_BY_TOKEN)
+            .post(DO_LOGIN_BY_TOKEN)
             .form(&body)
             .send()
             .await?;
@@ -258,15 +259,10 @@ impl LoginHandler {
     }
 
     /// Get the public key used to encrypt the password
-    pub async fn get_public_key(&self) -> Result<String, Error> {
+    pub async fn get_public_key(&self) -> Result<String> {
         let body = self.basic_request_body();
 
-        let mut resp = self
-            .client
-            .post(url::campus::GET_PUBLIC_KEY)
-            .form(&body)
-            .send()
-            .await?;
+        let mut resp = self.client.post(GET_PUBLIC_KEY).form(&body).send().await?;
 
         check_response(&mut resp).await?;
 
@@ -323,7 +319,7 @@ impl LoginHandler {
         phone_num: &str,
         password: &str,
         public_key: &str,
-    ) -> Result<LoginInfo, Error> {
+    ) -> Result<LoginInfo> {
         let mut body = self.basic_request_body();
 
         let encrypted_password = crate::utils::encrypt_password(password, public_key)?;
@@ -335,12 +331,7 @@ impl LoginHandler {
         body.push(("osVersion", super::OS_VERSION));
         body.push(("password", &encrypted_password));
 
-        let mut resp = self
-            .client
-            .post(url::campus::DO_LOGIN_BY_PWD)
-            .form(&body)
-            .send()
-            .await?;
+        let mut resp = self.client.post(DO_LOGIN_BY_PWD).form(&body).send().await?;
         check_response(&mut resp).await?;
 
         let buf = resp.bytes().await?;
@@ -379,7 +370,7 @@ impl LoginHandler {
 /// - [`reqwest::Client`]
 /// - 5s timeout
 /// - UA header
-pub fn init_app_sim_client(device_id: &str) -> Result<Client, Error> {
+pub fn init_app_sim_client(device_id: &str) -> Result<Client> {
     let builder = Client::builder();
 
     let result: reqwest::Client = builder
@@ -393,7 +384,7 @@ pub fn init_app_sim_client(device_id: &str) -> Result<Client, Error> {
 /// Generate app security token
 ///
 /// `appSecurityToken` is the device id encrypted with `AES`.
-pub fn app_security_token(security_token: &str, device_id: &str) -> Result<String, Error> {
+pub fn app_security_token(security_token: &str, device_id: &str) -> Result<String> {
     let key = GenericArray::clone_from_slice(security_token[..16].as_bytes());
     let cipher = Aes128::new(&key);
 
@@ -467,10 +458,9 @@ pub fn gen_device_id() -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::error::Error;
 
     #[test]
-    fn test_app_security_token() -> Result<(), Error> {
+    fn test_app_security_token() -> Result<()> {
         let result = app_security_token(
             "ce295733862b93cb376efef661c21b4dEW6CpH8wFHp/RvViKZiJ8A==",
             "12345678",

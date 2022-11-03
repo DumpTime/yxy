@@ -49,20 +49,24 @@ pub mod campus {
     /// *may be a typo*
     pub const BASE_URL: &str = "https://compus.xiaofubao.com";
 
-    pub const GET_SECURITY_TOKEN: &str = cc!(BASE_URL, "/common/security/token");
+    pub mod login {
+        use super::*;
 
-    pub const SEND_VERIFICATION_CODE: &str =
-        cc!(BASE_URL, "/compus/user/sendLoginVerificationCode");
+        pub const GET_SECURITY_TOKEN: &str = cc!(BASE_URL, "/common/security/token");
 
-    pub const GET_IMAGE_CAPTCHA: &str = cc!(BASE_URL, "/common/security/imageCaptcha");
+        pub const SEND_VERIFICATION_CODE: &str =
+            cc!(BASE_URL, "/compus/user/sendLoginVerificationCode");
 
-    pub const DO_LOGIN_BY_CODE: &str = cc!(BASE_URL, "/login/doLoginByVerificationCode");
+        pub const GET_IMAGE_CAPTCHA: &str = cc!(BASE_URL, "/common/security/imageCaptcha");
 
-    pub const DO_LOGIN_BY_TOKEN: &str = cc!(BASE_URL, "/login/doLoginBySilent");
+        pub const DO_LOGIN_BY_CODE: &str = cc!(BASE_URL, "/login/doLoginByVerificationCode");
 
-    pub const GET_PUBLIC_KEY: &str = cc!(BASE_URL, "/login/getPublicKey");
+        pub const DO_LOGIN_BY_TOKEN: &str = cc!(BASE_URL, "/login/doLoginBySilent");
 
-    pub const DO_LOGIN_BY_PWD: &str = cc!(BASE_URL, "/login/doLoginByPwd");
+        pub const GET_PUBLIC_KEY: &str = cc!(BASE_URL, "/login/getPublicKey");
+
+        pub const DO_LOGIN_BY_PWD: &str = cc!(BASE_URL, "/login/doLoginByPwd");
+    }
 }
 
 /// Payment URLs
