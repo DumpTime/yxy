@@ -81,13 +81,15 @@ async fn main() -> Result<(), Box<yxy::error::Error>> {
                         &sc.key,
                         &format!("{}{}", &sc.warning_title, &result.soc),
                         &fmt_ele_md(&result),
-                    )?;
+                    )
+                    .await?;
                 } else if sc.log_level == 0 {
                     utils::push_message(
                         &sc.key,
                         &format!("{}{}", &sc.title, &result.soc),
                         &fmt_ele_md(&result),
-                    )?;
+                    )
+                    .await?;
                 } else {
                     println!("Nothing to do.");
                 }
