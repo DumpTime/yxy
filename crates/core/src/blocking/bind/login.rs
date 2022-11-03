@@ -1,12 +1,13 @@
 //! Campus(YSchool) app login
 
+use crate::url::campus::login::*;
 use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::Aes128;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::io::Read;
 
-use super::{check_response, url};
+use super::check_response;
 use crate::error::Error;
 use crate::utils::{md5, pkcs7_padding};
 
@@ -126,11 +127,7 @@ impl LoginHandler {
     pub fn get_security_token(&self) -> Result<SecurityTokenInfo, Error> {
         let body = self.basic_request_body();
 
-        let mut resp = self
-            .client
-            .post(url::campus::GET_SECURITY_TOKEN)
-            .form(&body)
-            .send()?;
+        let mut resp = self.client.post(GET_SECURITY_TOKEN).form(&body).send()?;
         check_response(&mut resp)?;
 
         let resp_ser: BasicResponse<SecurityTokenInfo> = resp.json()?;
@@ -154,11 +151,7 @@ impl LoginHandler {
         let mut body = self.basic_request_body();
         body.push(("securityToken", security_token));
 
-        let mut resp = self
-            .client
-            .post(url::campus::GET_IMAGE_CAPTCHA)
-            .form(&body)
-            .send()?;
+        let mut resp = self.client.post(GET_IMAGE_CAPTCHA).form(&body).send()?;
         check_response(&mut resp)?;
 
         let resp_ser: BasicResponse<String> = resp.json()?;
@@ -195,7 +188,7 @@ impl LoginHandler {
 
         let mut resp = self
             .client
-            .post(url::campus::SEND_VERIFICATION_CODE)
+            .post(SEND_VERIFICATION_CODE)
             .form(&body)
             .send()?;
         check_response(&mut resp)?;
@@ -247,11 +240,7 @@ impl LoginHandler {
         body.push(("osVersion", super::OS_VERSION));
         body.push(("verificationCode", code));
 
-        let mut resp = self
-            .client
-            .post(url::campus::DO_LOGIN_BY_CODE)
-            .form(&body)
-            .send()?;
+        let mut resp = self.client.post(DO_LOGIN_BY_CODE).form(&body).send()?;
         check_response(&mut resp)?;
 
         let mut buf = String::new();
@@ -297,11 +286,7 @@ impl LoginHandler {
         body.push(("token", token));
         body.push(("ymId", uid));
 
-        let mut resp = self
-            .client
-            .post(url::campus::DO_LOGIN_BY_TOKEN)
-            .form(&body)
-            .send()?;
+        let mut resp = self.client.post(DO_LOGIN_BY_TOKEN).form(&body).send()?;
         check_response(&mut resp)?;
 
         let mut buf = String::new();
@@ -336,11 +321,7 @@ impl LoginHandler {
     pub fn get_public_key(&self) -> Result<String, Error> {
         let body = self.basic_request_body();
 
-        let mut resp = self
-            .client
-            .post(url::campus::GET_PUBLIC_KEY)
-            .form(&body)
-            .send()?;
+        let mut resp = self.client.post(GET_PUBLIC_KEY).form(&body).send()?;
 
         check_response(&mut resp)?;
 
@@ -410,11 +391,7 @@ impl LoginHandler {
         body.push(("osVersion", super::OS_VERSION));
         body.push(("password", &encrypted_password));
 
-        let mut resp = self
-            .client
-            .post(url::campus::DO_LOGIN_BY_PWD)
-            .form(&body)
-            .send()?;
+        let mut resp = self.client.post(DO_LOGIN_BY_PWD).form(&body).send()?;
         check_response(&mut resp)?;
 
         let mut buf = String::new();

@@ -8,7 +8,6 @@ use reqwest::blocking::Response;
 use std::{io::Read, time::Duration};
 
 use crate::error::Error;
-use crate::url;
 
 // Constant values
 const OS_TYPE: &str = "iOS";
