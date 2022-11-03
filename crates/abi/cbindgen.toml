@@ -46,6 +46,7 @@ usize_is_size_t = true
 [defines]
 # "target_os = freebsd" = "DEFINE_FREEBSD"
 # "feature = serde" = "DEFINE_SERDE"
+"feature = blocking" = "DEFINE_BLOCKING"
 
 
 [export]
@@ -129,4 +130,4 @@ extra_bindings = []
 crates = ["yxy-abi"]
 all_features = false
 default_features = true
-features = []
+features = ["blocking"]

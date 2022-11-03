@@ -1,7 +1,8 @@
 //! Applications
 
-use super::*;
-
+use crate::{check_null_return_null, utils::copy_c_string_into_string};
+use ffi_destruct::{extern_c_destructor, Destruct};
+use std::ffi::*;
 use yxy::blocking::AppHandler;
 
 #[repr(C)]

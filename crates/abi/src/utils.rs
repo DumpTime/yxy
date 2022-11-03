@@ -1,11 +1,12 @@
 //! Utils
 
-use super::*;
+use std::ffi::{c_char, CStr};
 
 /// Convert c-string to `&str`
 ///
 /// ## Safety
 /// Unchecked UTF-8 slice
+#[allow(dead_code)]
 pub unsafe fn c_string_to_str<'a>(c_str: *const c_char) -> &'a str {
     let c_str = CStr::from_ptr(c_str);
     std::str::from_utf8_unchecked(c_str.to_bytes())
@@ -17,6 +18,7 @@ pub unsafe fn c_string_to_str<'a>(c_str: *const c_char) -> &'a str {
 ///
 /// ## Safety
 /// Unchecked UTF-8 String
+#[allow(dead_code)]
 pub unsafe fn copy_c_string_into_string(c_str: *const c_char) -> String {
     let c_str = CStr::from_ptr(c_str);
     String::from_utf8_unchecked(c_str.to_bytes().to_vec())

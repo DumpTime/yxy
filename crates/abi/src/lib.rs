@@ -5,14 +5,15 @@
 //! ## Safety
 //! Every pointer return from rust side should be manually freed by `free_*` prefix functions.
 
+#[cfg(feature = "blocking")]
 pub mod app;
+#[cfg(feature = "blocking")]
 pub mod auth;
+#[cfg(feature = "blocking")]
 pub mod login;
 mod utils;
 
-use ffi_destruct::{extern_c_destructor, Destruct};
 use std::ffi::*;
-use utils::*;
 
 /// Error code definition
 #[repr(C)]

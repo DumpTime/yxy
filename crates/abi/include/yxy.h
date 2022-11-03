@@ -63,13 +63,16 @@ typedef struct AppHandler AppHandler;
  */
 typedef struct LoginHandler LoginHandler;
 
+#if defined(DEFINE_BLOCKING)
 typedef struct RoomInfo {
   char *area_id;
   char *building_code;
   char *floor_code;
   char *room_code;
 } RoomInfo;
+#endif
 
+#if defined(DEFINE_BLOCKING)
 typedef struct ElectricityInfo {
   char *area_id;
   char *building_code;
@@ -84,7 +87,9 @@ typedef struct ElectricityInfo {
   float subsidy;
   float subsidy_amount;
 } ElectricityInfo;
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Security token result
  *
@@ -95,7 +100,9 @@ typedef struct SecurityToken {
   int level;
   char *token;
 } SecurityToken;
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Login Info
  *
@@ -108,6 +115,7 @@ typedef struct LoginInfo {
   char *device_id;
   int bind_card_status;
 } LoginInfo;
+#endif
 
 /**
  * Free c-string
@@ -119,31 +127,44 @@ typedef struct LoginInfo {
  */
 void destruct_c_string(char *ptr);
 
+#if defined(DEFINE_BLOCKING)
 void destruct_room_info(struct RoomInfo *ptr);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * ## Safety
  * C-ABI usage only
  */
 struct RoomInfo *query_ele_bind(const struct AppHandler *handler);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 void destruct_electricity_info(struct ElectricityInfo *ptr);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * ## Safety
  * C-ABI usage only
  */
 struct ElectricityInfo *query_ele(const struct AppHandler *handler);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * ## Safety
  * C-ABI usage only
  */
 struct ElectricityInfo *query_ele_by_room_info(const struct AppHandler *handler,
                                                const struct RoomInfo *info);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 void destruct_app_handler(struct AppHandler *ptr);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Application Authorization
  *
@@ -156,7 +177,9 @@ void destruct_app_handler(struct AppHandler *ptr);
  * C-ABI usage only
  */
 char *app_auth(const char *uid);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Build [`AppHandler`] by exist session token
  *
@@ -164,7 +187,9 @@ char *app_auth(const char *uid);
  * C-ABI usage only
  */
 struct AppHandler *build_app_handler(const char *token);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Get [`AppHandler`] by UID with default query
  *
@@ -172,15 +197,21 @@ struct AppHandler *build_app_handler(const char *token);
  * C-ABI usage only
  */
 struct AppHandler *get_app_handler(const char *uid);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 void destruct_login_handler(struct LoginHandler *ptr);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * ## Safety
  * C-ABI usage only
  */
 struct LoginHandler *new_login_handler(void);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Build [`LoginHandler`] by provided `device_id`
  *
@@ -188,9 +219,13 @@ struct LoginHandler *new_login_handler(void);
  * C-ABI usage only
  */
 struct LoginHandler *build_login_handler(char *device_id);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 void destruct_security_token(struct SecurityToken *ptr);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Get security token
  *
@@ -198,7 +233,9 @@ void destruct_security_token(struct SecurityToken *ptr);
  * C-ABI usage only
  */
 struct SecurityToken *get_security_token(const struct LoginHandler *handler);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Get captcha image
  *
@@ -206,7 +243,9 @@ struct SecurityToken *get_security_token(const struct LoginHandler *handler);
  * C-ABI usage only
  */
 char *get_captcha_image(const struct LoginHandler *handler, const char *security_token);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Send SMS verification code
  *
@@ -226,9 +265,13 @@ int send_verification_code(const struct LoginHandler *handler,
                            const char *phone_number,
                            const char *security_token,
                            const char *captcha);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 void destruct_login_info(struct LoginInfo *ptr);
+#endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Do login by SMS verification code
  *
@@ -238,5 +281,6 @@ void destruct_login_info(struct LoginInfo *ptr);
 struct LoginInfo *do_login_by_code(const struct LoginHandler *handler,
                                    const char *phone_number,
                                    const char *code);
+#endif
 
 #endif /* yxy_h */

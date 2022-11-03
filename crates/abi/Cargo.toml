@@ -9,12 +9,14 @@ readme = "README.md"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "staticlib"]
 
 [dependencies.yxy]
 path = "../core"
 version = "0.4"
-features = ["blocking"]
 
 [dependencies]
 ffi-destruct = "0.1"
+
+[features]
+blocking = ["yxy/blocking"]

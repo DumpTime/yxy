@@ -10,7 +10,7 @@ core:
 
 abi:
 	@echo "Building cdylib & staticlib..."
-	@cargo build -p yxy-abi
+	@cargo build -p yxy-abi --all-features
 
 cli:
 	@echo "Building CLI..."
@@ -56,7 +56,7 @@ clean-xcf:
 apple:
 	@echo "Building Apple targets..."
 	@for target in $(APPLE_TARGETS); do \
-		cargo build -p yxy-abi --target $$target --release; \
+		cargo build -p yxy-abi --all-features --target $$target --release; \
 	done
 
 cbindgen:
