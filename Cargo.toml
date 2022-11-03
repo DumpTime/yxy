@@ -1,2 +1,2 @@
 [workspace]
-members = ["crates/core", "crates/cli", "crates/abi", "crates/httpd"]
+members = ["crates/abi", "crates/cli", "crates/core", "crates/httpd"]
