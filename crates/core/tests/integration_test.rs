@@ -28,14 +28,13 @@ async fn application() {
     let task1 = tokio::spawn(async move {
         let bind_info = h.binding_info().await.unwrap();
         println!("{:#?}", bind_info);
-
         let room_info = Arc::new(RoomInfo::from(bind_info));
 
         let h1 = h.clone();
         let ri = room_info.clone();
         let task1 = tokio::spawn(async move {
-            let ele_info = h1.surplus(&ri).await.unwrap();
-            println!("{:#?}", ele_info);
+            let surplus = h1.surplus(&ri).await.unwrap();
+            println!("{:#?}", surplus);
         });
 
         let h1 = h.clone();
@@ -51,7 +50,13 @@ async fn application() {
             println!("{:#?}", record);
         });
 
-        try_join!(task1, task2, task3).unwrap();
+        let (h1, ri) = (h.clone(), room_info.clone());
+        let task4 = tokio::spawn(async move {
+            let record = h1.usage_records(&ri, None).await.unwrap();
+            println!("{:#?}", record);
+        });
+
+        try_join!(task1, task2, task3, task4).unwrap();
     });
 
     let h = handler.clone();

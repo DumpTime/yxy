@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 const BIND_TYPE: &str = "3";
 const SUB_TYPE: &str = "100304";
+const MD_TYPE: &str = "50426";
 
 impl AppHandler {
     /// Query Bind infos
@@ -123,11 +124,11 @@ impl AppHandler {
 
     pub async fn usage_records(
         &self,
-        room_info: RoomInfo,
-        md_type: &str,
+        room_info: &RoomInfo,
+        md_type: Option<&str>,
     ) -> Result<Vec<UsageRecord>> {
         let form = [
-            ("mdType", md_type),
+            ("mdtype", md_type.unwrap_or(MD_TYPE)),
             ("areaId", &room_info.area_id),
             ("buildingCode", &room_info.building_code),
             ("floorCode", &room_info.floor_code),
