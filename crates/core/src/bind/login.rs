@@ -151,7 +151,7 @@ impl LoginHandler {
             }
 
             return Err(Error::Runtime(format!(
-                "Send verification code error: {{code: {}, message: {}}}",
+                "Send verification code error: ({}); {}",
                 resp_ser.status_code, resp_ser.message
             )));
         }
@@ -186,12 +186,7 @@ impl LoginHandler {
 
         let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
-            Err(e) => {
-                return Err(Error::Runtime(format!(
-                    "Parsing login response failed: {}\nData: {:?}",
-                    e, buf
-                )))
-            }
+            Err(e) => return Err(Error::Deserialize(e, buf)),
         };
 
         if !resp.success {
@@ -200,7 +195,7 @@ impl LoginHandler {
             }
 
             return Err(Error::Runtime(format!(
-                "Login error: {{code: {}, msg: {}}}",
+                "Login error: ({}); {}",
                 resp.status_code, resp.message
             )));
         }
@@ -235,12 +230,7 @@ impl LoginHandler {
 
         let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
-            Err(e) => {
-                return Err(Error::Runtime(format!(
-                    "Parsing login response failed: {}\nData: {:?}",
-                    e, buf
-                )))
-            }
+            Err(e) => return Err(Error::Deserialize(e, buf)),
         };
 
         if !resp.success {
@@ -249,7 +239,7 @@ impl LoginHandler {
             }
 
             return Err(Error::Runtime(format!(
-                "Login error: {{code: {}, msg: {}}}",
+                "Login error: ({}); {}",
                 resp.status_code, resp.message
             )));
         }
@@ -276,17 +266,12 @@ impl LoginHandler {
 
         let resp: BasicResponse<PublicKey> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
-            Err(e) => {
-                return Err(Error::Runtime(format!(
-                    "Parsing public key response failed: {}\nData: {:?}",
-                    e, buf
-                )))
-            }
+            Err(e) => return Err(Error::Deserialize(e, buf)),
         };
 
         if !resp.success {
             return Err(Error::Runtime(format!(
-                "Get public key error: {{code: {}, msg: {}}}",
+                "Get public key error: ({}); {}",
                 resp.status_code, resp.message
             )));
         }
@@ -338,12 +323,7 @@ impl LoginHandler {
 
         let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
-            Err(e) => {
-                return Err(Error::Runtime(format!(
-                    "Parsing login response failed: {}\nData: {:?}",
-                    e, buf
-                )))
-            }
+            Err(e) => return Err(Error::Deserialize(e, buf)),
         };
 
         if !resp.success {

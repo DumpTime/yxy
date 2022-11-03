@@ -30,10 +30,10 @@ pub mod application {
 
         pub const QUERY_USAGE_RECORDS: &str = cc!(BASE_URL, "/app/electric/getISIMSRecords");
 
-        pub const QUERY_MY_RECHARGE_RECORDS: &str =
+        pub const QUERY_USER_RECHARGE_RECORDS: &str =
             cc!(BASE_URL, "/app/order/bussisdw/queryListData");
 
-        pub const QUERY_RECHARGE_RECORDS: &str =
+        pub const QUERY_ROOM_RECHARGE_RECORDS: &str =
             cc!(BASE_URL, "/app/electric/queryISIMSRoomBuyRecord");
 
         pub const RECHARGE: &str = cc!(BASE_URL, "/app/electric/recharge.htm");

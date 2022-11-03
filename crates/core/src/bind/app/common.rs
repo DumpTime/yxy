@@ -27,7 +27,7 @@ pub async fn get_submit_token(client: &Client, uid: &str) -> Result<String, Erro
 
     if !resp_ser.success {
         return Err(Error::Runtime(format!(
-            "Fail to get submit token ({}): {}",
+            "Fail to get submit token: ({}); {}",
             resp_ser.status_code, resp_ser.message
         )));
     }

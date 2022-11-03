@@ -118,20 +118,16 @@ pub async fn authorize(client: &Client, code: &str) -> Result<(String, UserInfo)
             let session = v.value().to_string();
             let resp = response.bytes().await?;
 
-            let resp_ser: AuthResponse = match serde_json::from_slice(resp.as_ref()) {
+            let resp: AuthResponse = match serde_json::from_slice(resp.as_ref()) {
                 Ok(v) => v,
-                Err(e) => {
-                    return Err(Error::Runtime(format!(
-                        "Parsing error: {e}\nData: {resp:?}"
-                    )))
-                }
+                Err(e) => return Err(Error::Deserialize(e, resp)),
             };
-            if !resp_ser.success {
-                return Err(Error::Auth(resp_ser.message));
+            if !resp.success {
+                return Err(Error::Auth(resp.message));
             }
-            match resp_ser.data {
+            match resp.data {
                 Some(v) => Ok((session, v)),
-                None => Err(Error::Auth(resp_ser.message)),
+                None => Err(Error::Auth(resp.message)),
             }
         }
         None => {
@@ -169,16 +165,12 @@ impl super::AppHandler {
 
         let resp = response.bytes().await?;
 
-        let resp_ser: AuthResponse = match serde_json::from_slice(resp.as_ref()) {
+        let resp: AuthResponse = match serde_json::from_slice(resp.as_ref()) {
             Ok(v) => v,
-            Err(e) => {
-                return Err(Error::Runtime(format!(
-                    "Parsing error: {e}\nData: {resp:?}"
-                )))
-            }
+            Err(e) => return Err(Error::Deserialize(e, resp)),
         };
-        if !resp_ser.success {
-            return Err(Error::Auth(resp_ser.message));
+        if !resp.success {
+            return Err(Error::Auth(resp.message));
         }
 
         Ok(Self { client })
@@ -197,18 +189,18 @@ impl super::AppHandler {
             .await?;
         crate::bind::check_response(&mut response).await?;
 
-        let resp_ser: AuthResponse = response.json().await?;
-        if !resp_ser.success {
+        let resp: AuthResponse = response.json().await?;
+        if !resp.success {
             return Err(Error::Runtime(format!(
                 "Get user info failed: {}",
-                resp_ser.message
+                resp.message
             )));
         }
-        match resp_ser.data {
+        match resp.data {
             Some(v) => Ok(v),
             None => Err(Error::Runtime(format!(
                 "Get user info failed: {}",
-                resp_ser.message
+                resp.message
             ))),
         }
     }

@@ -58,12 +58,12 @@ async fn check_response(res: &mut Response) -> Result<()> {
         let text = res.chunk().await?;
         if let Some(text) = text {
             return Err(Error::Runtime(format!(
-                "Bad response: {}\nText: {:?}",
+                "Bad response: ({}); {:?}",
                 res.status(),
                 text,
             )));
         } else {
-            return Err(Error::Runtime(format!("Bad response: {}", res.status())));
+            return Err(Error::Runtime(format!("Bad response: ({});", res.status())));
         }
     }
 

@@ -19,24 +19,15 @@ impl AppHandler {
         let mut resp = self.client.post(QUERY_BIND).form(&form).send().await?;
         check_response(&mut resp).await?;
 
-        #[derive(Deserialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct Response {
-            pub status_code: i32,
-            pub success: bool,
-            pub total: Option<u32>,
-            pub message: Option<String>,
-            pub rows: Option<Vec<BindInfo>>,
-        }
-
-        let resp: Response = resp.json().await?;
+        let resp: Response<BindInfo> = resp.json().await?;
         if !resp.success {
             if resp.status_code == 204 {
                 return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
-                "Fail to query bind: {}",
-                resp.message.unwrap()
+                "Fail to query bind: ({}); {}",
+                resp.status_code,
+                resp.message.unwrap_or_default()
             )));
         }
 
@@ -73,8 +64,8 @@ impl AppHandler {
                 return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
-                "Fail to query electricity: {}",
-                resp.message
+                "Fail to query surplus: ({}); {}",
+                resp.status_code, resp.message
             )));
         }
 
@@ -83,43 +74,6 @@ impl AppHandler {
         } else {
             Err(Error::EmptyResp)
         }
-    }
-
-    /// Query my recharge records
-    ///
-    /// Returns [`MyRechargeRecord`] list
-    pub async fn my_recharge_records(&self, page: u32) -> Result<Vec<MyRechargeRecord>> {
-        let page = page.to_string();
-        let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
-
-        let mut resp = self
-            .client
-            .post(QUERY_MY_RECHARGE_RECORDS)
-            .form(&form)
-            .send()
-            .await?;
-        check_response(&mut resp).await?;
-
-        let buf = resp.bytes().await?;
-
-        let resp: Response<MyRechargeRecord> = match serde_json::from_slice(buf.as_ref()) {
-            Ok(v) => v,
-            Err(e) => return Err(Error::Deserialize(e, buf)),
-        };
-
-        if !resp.success {
-            if resp.status_code == 204 {
-                return Err(Error::Auth("Unauthorized".to_string()));
-            }
-            return Err(Error::Runtime(format!(
-                "Fail to query recharge record: {}",
-                resp.status_code
-            )));
-        } else if resp.total == 0 {
-            return Err(Error::EmptyResp);
-        }
-
-        Ok(resp.rows)
     }
 
     /// Query electricity usage records
@@ -159,17 +113,58 @@ impl AppHandler {
                 return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
-                "Fail to query recharge record: {}",
-                resp.status_code
+                "Fail to query usage: ({}); {}",
+                resp.status_code,
+                resp.message.unwrap_or_default(),
             )));
-        } else if resp.total == 0 {
-            return Err(Error::EmptyResp);
         }
 
-        Ok(resp.rows)
+        match resp.rows {
+            Some(rows) if rows.len() > 0 => Ok(rows),
+            _ => Err(Error::EmptyResp),
+        }
     }
 
-    pub async fn recharge_records(
+    /// Query my recharge records
+    ///
+    /// Returns [`MyRechargeRecord`] list
+    pub async fn user_recharge_records(&self, page: u32) -> Result<Vec<UserRechargeRecord>> {
+        let page = page.to_string();
+        let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
+
+        let mut resp = self
+            .client
+            .post(QUERY_USER_RECHARGE_RECORDS)
+            .form(&form)
+            .send()
+            .await?;
+        check_response(&mut resp).await?;
+
+        let buf = resp.bytes().await?;
+
+        let resp: Response<UserRechargeRecord> = match serde_json::from_slice(buf.as_ref()) {
+            Ok(v) => v,
+            Err(e) => return Err(Error::Deserialize(e, buf)),
+        };
+
+        if !resp.success {
+            if resp.status_code == 204 {
+                return Err(Error::Auth("Unauthorized".to_string()));
+            }
+            return Err(Error::Runtime(format!(
+                "Fail to query user recharge record: ({}); {}",
+                resp.status_code,
+                resp.message.unwrap_or_default(),
+            )));
+        }
+
+        match resp.rows {
+            Some(rows) if rows.len() > 0 => Ok(rows),
+            _ => Err(Error::EmptyResp),
+        }
+    }
+
+    pub async fn room_recharge_records(
         &self,
         page: u32,
         room_info: &RoomInfo,
@@ -186,7 +181,7 @@ impl AppHandler {
 
         let mut resp = self
             .client
-            .post(QUERY_RECHARGE_RECORDS)
+            .post(QUERY_ROOM_RECHARGE_RECORDS)
             .form(&form)
             .send()
             .await?;
@@ -204,14 +199,16 @@ impl AppHandler {
                 return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
-                "Fail to query recharge record: {}",
-                resp.status_code
+                "Fail to query room recharge record: ({}); {}",
+                resp.status_code,
+                resp.message.unwrap_or_default(),
             )));
-        } else if resp.total == 0 {
-            return Err(Error::EmptyResp);
         }
 
-        Ok(resp.rows)
+        match resp.rows {
+            Some(rows) if rows.len() > 0 => Ok(rows),
+            _ => Err(Error::EmptyResp),
+        }
     }
 
     /// Create recharge transaction
@@ -273,19 +270,19 @@ impl AppHandler {
             pub data: Option<String>,
         }
 
-        let resp_ser: Response = resp.json().await?;
+        let resp: Response = resp.json().await?;
 
-        if !resp_ser.success {
-            if resp_ser.status_code == 204 {
+        if !resp.success {
+            if resp.status_code == 204 {
                 return Err(Error::Auth("Unauthorized".to_string()));
             }
             return Err(Error::Runtime(format!(
-                "Fail to recharge electricity: {}",
-                resp_ser.message
+                "Fail to recharge electricity: ({}); {}",
+                resp.status_code, resp.message,
             )));
         }
 
-        let callback_url = reqwest::Url::parse(&resp_ser.data.unwrap()).unwrap();
+        let callback_url = reqwest::Url::parse(&resp.data.unwrap()).unwrap();
 
         for (key, value) in callback_url.query_pairs() {
             if key == "tran_no" {
@@ -410,15 +407,16 @@ pub struct EleTopUpType {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Response<T> {
-    pub status_code: i64,
-    pub rows: Vec<T>,
-    pub total: i64,
+    pub status_code: i32,
     pub success: bool,
+    pub total: Option<u32>,
+    pub message: Option<String>,
+    pub rows: Option<Vec<T>>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MyRechargeRecord {
+pub struct UserRechargeRecord {
     pub id: String,
     pub order_no: String,
     pub pay_money: f64,
