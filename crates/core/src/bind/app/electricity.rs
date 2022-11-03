@@ -122,6 +122,10 @@ impl AppHandler {
         Ok(resp.rows)
     }
 
+    /// Query electricity usage records
+    ///
+    /// `md_type` is the type of meter, default is `50426`.
+    /// Or you can find the exact value in [`SurplusInfo`].
     pub async fn usage_records(
         &self,
         room_info: &RoomInfo,
