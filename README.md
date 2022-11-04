@@ -15,11 +15,12 @@ YXY(yiSchool) platform API bindings, written in rust.
 
 ## Features
 
-- [X] Query electricity balance.
+- [X] Query electricity balance, usages/recharge records.
 - [X] Simulate APP login.
 - [X] Subscribe some balance status. ([`yxy-cli`][yxy-cli])
   - WeChat(ServerChan)
 - [X] Create electricity recharge transaction.
+- [ ] And more...(Waiting for your contribution)
 
 ## Development
 
@@ -34,6 +35,16 @@ YXY(yiSchool) platform API bindings, written in rust.
    ```bash
    cargo test
    ```
+4. Docs
+   
+   ```bash
+   cargo doc --open
+   ```
+5. Check with `cargo-clippy`
+
+   ```bash
+   cargo clippy
+   ```
 
 ## CLI
 
@@ -41,11 +52,12 @@ You can use a simple tool: [`yxy-cli`][yxy-cli]
 
 ## For other programming languages
 
-Also you can try [`yxy-abi`][yxy-abi]
+Also you can try [`yxy-abi`][yxy-abi] or [`yxy-httpd`][yxy-httpd]
 
-## Disclaimer
-
-For learning only, do not use for commercial purposes.
+# Disclaimer
+**A pure non-profit project, only for learning usage. Do not use for any commercial purposes.**
+**Any inappropriate use is at your own risk.**
 
 [yxy-cli]: https://github.com/DumpTime/yxy/tree/dev/crates/cli
 [yxy-abi]: https://github.com/DumpTime/yxy/tree/dev/crates/abi
+[yxy-httpd]: https://github.com/DumpTime/yxy/tree/dev/crates/httpd
