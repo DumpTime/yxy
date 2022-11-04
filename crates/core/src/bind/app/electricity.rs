@@ -120,7 +120,7 @@ impl AppHandler {
         }
 
         match resp.rows {
-            Some(rows) if rows.len() > 0 => Ok(rows),
+            Some(rows) if !rows.is_empty() => Ok(rows),
             _ => Err(Error::EmptyResp),
         }
     }
@@ -159,7 +159,7 @@ impl AppHandler {
         }
 
         match resp.rows {
-            Some(rows) if rows.len() > 0 => Ok(rows),
+            Some(rows) if !rows.is_empty() => Ok(rows),
             _ => Err(Error::EmptyResp),
         }
     }
@@ -206,7 +206,7 @@ impl AppHandler {
         }
 
         match resp.rows {
-            Some(rows) if rows.len() > 0 => Ok(rows),
+            Some(rows) if !rows.is_empty() => Ok(rows),
             _ => Err(Error::EmptyResp),
         }
     }
