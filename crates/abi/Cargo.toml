@@ -19,4 +19,5 @@ path = "../core"
 version = "0.5"
 
 [features]
+# default = ["blocking"]
 blocking = ["yxy/blocking"]

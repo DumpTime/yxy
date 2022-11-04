@@ -1,13 +1,13 @@
 //! API request bindings
 
-pub mod app;
-pub mod login;
-pub mod pay;
+use crate::error::Error;
 
 use reqwest::{Client, Response};
 use std::time::Duration;
 
-use crate::error::Error;
+pub mod app;
+pub mod login;
+pub mod pay;
 
 // Constant values
 const OS_TYPE: &str = "iOS";

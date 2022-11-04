@@ -1,5 +1,6 @@
-//! Using [`reqwest`] blocking clients
+//! Using [`reqwest`] **blocking** clients
 //!
+//! # Warning: Not actively maintained
 //! Provides backward compatibility only, not recommended for new code.
 
 pub mod bind;

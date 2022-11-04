@@ -117,6 +117,7 @@ typedef struct LoginInfo {
 } LoginInfo;
 #endif
 
+#if defined(DEFINE_BLOCKING)
 /**
  * Free c-string
  *
@@ -124,8 +125,10 @@ typedef struct LoginInfo {
  *
  * ## Safety
  * C-ABI usage only
+ *
  */
 void destruct_c_string(char *ptr);
+#endif
 
 #if defined(DEFINE_BLOCKING)
 void destruct_room_info(struct RoomInfo *ptr);

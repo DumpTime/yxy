@@ -2,10 +2,6 @@
 //!
 //! You should authorize before using any application API.
 
-pub mod auth;
-pub mod common;
-pub mod electricity;
-
 use super::Result;
 use crate::bind::check_response;
 use crate::error::Error;
@@ -13,6 +9,10 @@ use crate::error::Error;
 use reqwest::cookie::Jar;
 use reqwest::Client;
 use std::{sync::Arc, time::Duration};
+
+pub mod auth;
+pub mod common;
+pub mod electricity;
 
 const APP_ID: &str = "1810181825222034";
 const SESSION_KEY: &str = "shiroJID";
