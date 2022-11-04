@@ -1,4 +1,4 @@
-//! Campus(YSchool) app login
+//! Campus(yiSchool) app login
 
 use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::Aes128;

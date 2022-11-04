@@ -9,7 +9,7 @@
 [build badge]: https://github.com/DumpTime/yxy/actions/workflows/build.yml/badge.svg
 [build]: https://github.com/DumpTime/yxy/actions/workflows/build.yml
 
-YXY(YSchool) platform API binding.
+YXY(yiSchool) platform API binding.
 
 ---
 

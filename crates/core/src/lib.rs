@@ -1,6 +1,6 @@
 //! # yxy
 //!
-//! YXY(YSchool) platform API binding, written in rust.
+//! YXY(yiSchool) platform API binding, written in rust.
 //!
 //! Uses [`reqwest`](https://crates.io/crates/reqwest) to perform async HTTP requests.
 //!
