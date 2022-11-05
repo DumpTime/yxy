@@ -107,6 +107,10 @@ jobs:
           openssl dgst -sha256 xcframework-universal.zip > xcframework-universal.zip.checksum
           cp ./crates/abi/include/yxy.h .
 
+      - name: Package core crate
+        run: |
+          cargo package --no-verify --p yxy
+
       - name: Upload Bundle
         uses: actions/upload-artifact@v3
         with:
@@ -136,6 +140,7 @@ jobs:
           mv artifacts/aarch64-apple-darwin/libyxy_abi.a dist/libyxy-aarch64-apple-darwin.a
           mv xcframework-universal.zip dist/xcframework-universal.zip
           mv xcframework-universal.zip.checksum dist/xcframework-universal.zip.checksum
+          mv target/package/yxy-*.crate dist/
           mv yxy.h dist/yxy.h
 
       - name: Publish Release
