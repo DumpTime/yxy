@@ -15,7 +15,7 @@ YXY(yiSchool) platform API binding.
 
 ## About
 You can simply query yxy API by some wrappers in the library. 
-Uses [`reqwest`] to perform async HTTP requests.
+Uses [`reqwest`][reqwest] to perform async HTTP requests.
 
 [reqwest]: https://crates.io/crates/reqwest
 [repo]: https://github.com/DumpTime/yxy
