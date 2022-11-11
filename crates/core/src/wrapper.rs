@@ -7,10 +7,9 @@ use crate::error::Error;
 ///
 /// Wrapper of Authorization procedure.
 ///
-/// just input uid to get authorization :) .
-/// This could be a vulnerability of yxy API.
+/// Just input uid to get authorization.
 ///
-/// returns a tuple of (Session Token, [`app::auth::UserInfo`])
+/// Returns a tuple of (Session Token, [`app::auth::UserInfo`])
 pub async fn app_auth(uid: &str) -> Result<(String, app::auth::UserInfo), Error> {
     // Init non-redirect client to catch redirect response
     let client = build_non_redirect_client()?;

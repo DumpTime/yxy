@@ -2,13 +2,14 @@
 //!
 //! You should authorize before using any application API.
 
-use super::Result;
-use crate::bind::check_response;
-use crate::error::Error;
+use std::{sync::Arc, time::Duration};
 
 use reqwest::cookie::Jar;
 use reqwest::Client;
-use std::{sync::Arc, time::Duration};
+
+use super::Result;
+use crate::bind::check_response;
+use crate::error::Error;
 
 pub mod auth;
 pub mod common;
