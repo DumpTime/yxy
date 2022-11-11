@@ -5,8 +5,7 @@ use aes::Aes128;
 use reqwest::Client;
 use serde::Deserialize;
 
-use super::{check_response, Result};
-use crate::error::Error;
+use super::*;
 use crate::url::campus::login::*;
 use crate::utils::{md5, pkcs7_padding};
 

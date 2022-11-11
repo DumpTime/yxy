@@ -1,12 +1,13 @@
 //! API request bindings
 
-use crate::error::Error;
-
-use reqwest::{Client, Response};
 use std::time::Duration;
 
+use reqwest::{Client, Response};
+
+use crate::error::Error;
+
 pub mod app;
-pub mod login;
+pub mod campus;
 pub mod pay;
 
 // Constant values
