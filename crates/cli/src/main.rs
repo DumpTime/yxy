@@ -3,7 +3,6 @@
 //! CLI for YXY
 
 use clap::Parser;
-
 use yxy::*;
 
 mod arg;
@@ -161,7 +160,7 @@ pub fn fmt_ele_md(info: &yxy::SurplusInfo) -> String {
 
 /// Query UID procedure
 async fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Error> {
-    let handler = yxy::bind::login::LoginHandler::new()?;
+    let handler = yxy::bind::campus::login::LoginHandler::new()?;
 
     println!("Querying security token...");
     let security_token = handler.get_security_token().await?;
