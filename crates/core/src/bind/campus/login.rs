@@ -15,6 +15,12 @@ pub struct LoginHandler {
     device_id: String,
 }
 
+impl BasicRequestBody for LoginHandler {
+    fn device_id(&self) -> &str {
+        &self.device_id
+    }
+}
+
 impl LoginHandler {
     /// Create handler with generated UUID in place of `device_id`
     pub fn new() -> Result<Self> {
@@ -34,19 +40,9 @@ impl LoginHandler {
         })
     }
 
-    /// Init general request body
-    pub fn basic_request_body(&self) -> Vec<(&str, &str)> {
-        vec![
-            ("appVersion", super::APP_VER),
-            ("deviceId", &self.device_id),
-            ("platform", super::PLATFORM),
-            ("testAccount", "1"),
-        ]
-    }
-
     /// Return security token & level
     pub async fn get_security_token(&self) -> Result<SecurityTokenInfo> {
-        let body = self.basic_request_body();
+        let body = self.req_body();
 
         let mut resp = self
             .client
@@ -74,7 +70,7 @@ impl LoginHandler {
     ///
     /// Return image captcha base64 string
     pub async fn get_captcha_image(&self, security_token: &str) -> Result<String> {
-        let mut body = self.basic_request_body();
+        let mut body = self.req_body();
         body.push(("securityToken", security_token));
 
         let mut resp = self
@@ -103,7 +99,7 @@ impl LoginHandler {
         security_token: &str,
         captcha: Option<&str>,
     ) -> Result<bool> {
-        let mut body = self.basic_request_body();
+        let mut body = self.req_body();
 
         let app_security_token = app_security_token(security_token, &self.device_id)?; // Important
 
@@ -164,7 +160,7 @@ impl LoginHandler {
     ///
     /// return [`LoginInfo`]
     pub async fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo> {
-        let mut body = self.basic_request_body();
+        let mut body = self.req_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("mobilePhone", phone_num));
         body.push(("osType", super::OS_TYPE));
@@ -209,7 +205,7 @@ impl LoginHandler {
     /// Used to refresh token and get [`LoginInfo`]
     /// Also can be used to check login status.
     pub async fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo> {
-        let mut body = self.basic_request_body();
+        let mut body = self.req_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("osType", super::OS_TYPE));
         body.push(("osUuid", &self.device_id));
@@ -249,7 +245,7 @@ impl LoginHandler {
 
     /// Get the public key used to encrypt the password
     pub async fn get_public_key(&self) -> Result<String> {
-        let body = self.basic_request_body();
+        let body = self.req_body();
 
         let mut resp = self.client.post(GET_PUBLIC_KEY).form(&body).send().await?;
 
@@ -304,7 +300,7 @@ impl LoginHandler {
         password: &str,
         public_key: &str,
     ) -> Result<LoginInfo> {
-        let mut body = self.basic_request_body();
+        let mut body = self.req_body();
 
         let encrypted_password = crate::utils::encrypt_password(password, public_key)?;
 

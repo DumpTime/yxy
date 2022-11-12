@@ -7,17 +7,41 @@ use super::*;
 pub mod card;
 pub mod login;
 
-/// TODO
+impl BasicRequestBody for CampusHandler {
+    fn device_id(&self) -> &str {
+        &self.device_id
+    }
+}
+
+trait BasicRequestBody {
+    fn req_body(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("appVersion", APP_VER),
+            ("deviceId", self.device_id()),
+            ("platform", PLATFORM),
+            ("testAccount", "1"),
+        ]
+    }
+
+    fn device_id(&self) -> &str;
+}
+
+/// Handler for Campus API
 pub struct CampusHandler {
-    _client: Client,
-    _device_id: String,
+    client: Client,
+    device_id: String,
     pub token: String,
 }
 
-/// TODO
 impl CampusHandler {
-    pub fn build(_token: &str, _device_id: &str) -> Self {
-        todo!();
+    pub fn build(token: &str, device_id: &str) -> Result<Self> {
+        let client = init_app_sim_client(device_id)?;
+
+        Ok(Self {
+            client,
+            device_id: device_id.to_string(),
+            token: token.to_string(),
+        })
     }
 }
 
