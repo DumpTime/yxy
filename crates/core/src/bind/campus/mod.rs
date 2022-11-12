@@ -3,7 +3,7 @@
 //! See [`login`] for authorize.
 
 use super::*;
-use crate::url::campus;
+use crate::{url::campus, utils::gen_random_fake_md5};
 
 pub mod login;
 pub mod user;
@@ -20,13 +20,23 @@ pub struct CampusHandler {
 
 impl CampusHandler {
     /// Build handler by session token & device id
-    pub fn build(token: &str, device_id: &str, uid: &str, school_code: &str) -> Result<Self> {
+    pub fn build(
+        device_id: &str,
+        uid: &str,
+        school_code: &str,
+        token: Option<&str>,
+    ) -> Result<Self> {
         let client = init_app_sim_client(device_id)?;
 
         Ok(Self {
             client,
             device_id: device_id.to_string(),
-            token: token.to_string(),
+            token: {
+                match token {
+                    Some(v) => v.to_string(),
+                    None => gen_random_fake_md5(),
+                }
+            },
             uid: uid.to_string(),
             school_code: school_code.to_string(),
         })

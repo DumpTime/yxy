@@ -1,6 +1,7 @@
 //! Some useful util functions
 
 use base64;
+use rand::Rng;
 use rsa::{pkcs8::DecodePublicKey, PaddingScheme, PublicKey, RsaPublicKey};
 use std::io::Write;
 
@@ -95,6 +96,17 @@ pub fn pkcs7_padding(message: &str, block_size: usize) -> String {
     format!("{}{}", message, padding)
 }
 
+const LOWER_CHAR_NUM_LIST: &[u8; 36] = b"abcdefghijklmnopqrstuvwxyz1234567890";
+
+/// Random md5-style string generator
+pub fn gen_random_fake_md5() -> String {
+    let mut buf = Vec::with_capacity(32);
+    for _ in 0..32 {
+        buf.push(LOWER_CHAR_NUM_LIST[rand::thread_rng().gen_range(0..36)]);
+    }
+    unsafe { String::from_utf8_unchecked(buf) }
+}
+
 #[cfg(test)]
 mod test {
     use rsa::{pkcs1::DecodeRsaPrivateKey, RsaPrivateKey};
@@ -107,6 +119,13 @@ mod test {
             md5("abcdefghijklmnopqrstuvwxyz"),
             "c3fcd3d76192e4007dfb496cca67e13b"
         )
+    }
+
+    #[test]
+    fn test_gen_md5() {
+        let md5 = gen_random_fake_md5();
+        println!("{}", md5);
+        assert_eq!(md5.len(), 32);
     }
 
     #[test]

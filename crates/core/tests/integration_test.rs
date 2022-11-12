@@ -85,10 +85,10 @@ async fn campus() {
     use yxy::bind::campus::*;
 
     let handler = CampusHandler::build(
-        &CONFIG.campus_token,
         &CONFIG.device_id,
         &CONFIG.uid,
         &CONFIG.school_code,
+        Some(&CONFIG.campus_token),
     )
     .unwrap();
     let record = handler.query_card_balance().await.unwrap();

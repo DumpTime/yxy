@@ -5,11 +5,6 @@ use serde::Deserialize;
 use super::*;
 use campus::user::*;
 
-mod error_message {
-    pub const DEVICE_CHANGED: &str = "[deviceId changed]";
-    pub const USER_NOT_FOUND: &str = "[user no find]";
-}
-
 impl CampusHandler {
     pub async fn query_card_balance(&self) -> Result<String> {
         let body = self.req_body();
@@ -40,11 +35,14 @@ impl CampusHandler {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Response<T> {
+struct Response<D = (), R = ()> {
     pub status_code: i64,
+    /// Error code
+    pub biz_code: Option<i64>,
     pub message: String,
     pub success: bool,
-    pub data: Option<T>,
+    pub data: Option<D>,
+    pub rows: Option<R>,
 }
 
 /// # Returns
@@ -52,15 +50,16 @@ struct Response<T> {
 /// - `Ok(true)` for some error unhandled.
 /// - `Ok(false)` for no error.
 fn check_auth_status<T>(resp: &Response<T>) -> Result<bool> {
+    todo!();
     if !resp.success {
         if resp.status_code == 204 {
-            let msg = &resp.message;
-            if msg.ends_with(error_message::DEVICE_CHANGED) {
-                return Err(Error::DeviceChanged);
-            }
-            if msg.ends_with(error_message::USER_NOT_FOUND) {
-                return Err(Error::UserNotFound);
-            }
+            // let msg = &resp.message;
+            // if msg.ends_with(error_message::DEVICE_CHANGED) {
+            //     return Err(Error::DeviceChanged);
+            // }
+            // if msg.ends_with(error_message::USER_NOT_FOUND) {
+            //     return Err(Error::UserNotFound);
+            // }
         }
         return Ok(true);
     }

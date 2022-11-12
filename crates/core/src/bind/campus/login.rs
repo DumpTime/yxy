@@ -201,13 +201,16 @@ impl LoginHandler {
         Ok(result)
     }
 
-    /// Do login by session token
+    /// Do login in silent
     ///
     /// Bind to [`crate::url::campus::DO_LOGIN_BY_TOKEN`]
     ///
-    /// Used to refresh token and get [`LoginInfo`]
-    /// Also can be used to check login status.
-    pub async fn do_login_by_token(&self, uid: &str, token: &str) -> Result<LoginInfo> {
+    /// **token** is optional.
+    /// If `None` is provided, a random one will be generated
+    ///
+    /// Used to get new [`LoginInfo`] (contains new token)
+    /// Also can be used to check specific device user login status.
+    pub async fn silent_login(&self, uid: &str, token: &str) -> Result<LoginInfo> {
         let mut body = self.req_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("osType", super::OS_TYPE));
