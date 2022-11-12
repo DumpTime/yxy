@@ -15,12 +15,6 @@ pub struct LoginHandler {
     device_id: String,
 }
 
-impl BasicRequestBody for LoginHandler {
-    fn device_id(&self) -> &str {
-        &self.device_id
-    }
-}
-
 impl LoginHandler {
     /// Create handler with generated UUID in place of `device_id`
     pub fn new() -> Result<Self> {
@@ -38,6 +32,15 @@ impl LoginHandler {
             device_id: device_id.to_string(),
             client: init_app_sim_client(device_id)?,
         })
+    }
+
+    fn req_body(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("appVersion", APP_VER),
+            ("deviceId", &self.device_id),
+            ("platform", PLATFORM),
+            ("testAccount", "1"),
+        ]
     }
 
     /// Return security token & level
@@ -128,17 +131,17 @@ impl LoginHandler {
             user_exists: bool,
         }
 
-        let resp_ser: BasicResponse<Data> = resp.json().await?;
-        if !resp_ser.success {
-            if resp_ser.status_code == 203 {
-                if resp_ser.message == error_messages::BAD_PHONE_NUM
-                    || resp_ser.message == error_messages::BAD_PHONE_NUM_FORMAT
+        let resp: BasicResponse<Data> = resp.json().await?;
+        if !resp.success {
+            if resp.status_code == 203 {
+                if resp.message == error_messages::BAD_PHONE_NUM
+                    || resp.message == error_messages::BAD_PHONE_NUM_FORMAT
                 {
                     return Err(Error::BadPhoneNumber);
                 }
-                if resp_ser.message.starts_with(error_messages::TOO_FREQUENT)
-                    || resp_ser.message == error_messages::FLOW_CONTROL
-                    || resp_ser.message == error_messages::TOO_MANY_TRIES
+                if resp.message.starts_with(error_messages::TOO_FREQUENT)
+                    || resp.message == error_messages::FLOW_CONTROL
+                    || resp.message == error_messages::TOO_MANY_TRIES
                 {
                     return Err(Error::Limited);
                 }
@@ -146,12 +149,12 @@ impl LoginHandler {
 
             return Err(Error::Runtime(format!(
                 "Send verification code error: ({}); {}",
-                resp_ser.status_code, resp_ser.message
+                resp.status_code, resp.message
             )));
         }
 
         // User status
-        let user_exists = resp_ser.data.unwrap().user_exists;
+        let user_exists = resp.data.unwrap().user_exists;
 
         Ok(user_exists)
     }

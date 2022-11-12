@@ -78,3 +78,20 @@ async fn app_auth() -> Result {
 
     Ok(())
 }
+
+#[ignore]
+#[tokio::test]
+async fn campus() {
+    use yxy::bind::campus::*;
+
+    let handler = CampusHandler::build(
+        &CONFIG.campus_token,
+        &CONFIG.device_id,
+        &CONFIG.uid,
+        &CONFIG.school_code,
+    )
+    .unwrap();
+    let record = handler.query_card_balance().await.unwrap();
+
+    println!("{}", record);
+}

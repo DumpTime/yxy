@@ -67,6 +67,12 @@ pub mod campus {
 
         pub const DO_LOGIN_BY_PWD: &str = cc!(BASE_URL, "/login/doLoginByPwd");
     }
+
+    pub mod user {
+        use super::*;
+
+        pub const QUERY_CARD_BALANCE: &str = cc!(BASE_URL, "/compus/user/getCardMoney");
+    }
 }
 
 /// Payment URLs

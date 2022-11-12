@@ -6,6 +6,7 @@ use thiserror::Error;
 /// Library error type
 #[derive(Debug, Error)]
 pub enum Error {
+    /// Genral errors
     #[error("Runtime Error: {0}")]
     Runtime(String),
     #[error("Authorization Error: {0}")]
@@ -24,6 +25,8 @@ pub enum Error {
     BadLoginSecret,
     #[error("Device changed")]
     DeviceChanged,
+    #[error("User not found")]
+    UserNotFound,
 
     #[error(transparent)]
     IO(#[from] std::io::Error),

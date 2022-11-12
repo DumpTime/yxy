@@ -6,9 +6,11 @@ use serde::Deserialize;
 pub struct Config {
     pub uid: String,
     pub phone_num: String,
-    pub session_token: String,
     pub password: String,
+    pub school_code: String,
+    pub session_token: String,
     pub device_id: String,
+    pub campus_token: String,
 }
 
 impl Config {
