@@ -411,7 +411,7 @@ impl LoginHandler {
             if resp_ser.message.starts_with(error_messages::WRONG_SECRET) {
                 return Err(Error::BadLoginSecret);
             } else if resp_ser.message == error_messages::DEVICE_CHANGED {
-                return Err(Error::DeviceChanged);
+                return Err(Error::AuthDeviceChanged);
             }
 
             return Err(Error::Runtime(format!(
