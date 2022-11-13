@@ -90,12 +90,10 @@ impl LoginHandler {
                 "Get image captcha failed: ({}); {}",
                 resp.status_code, resp.message
             )))
+        } else if let Some(v) = resp.data {
+            Ok(v)
         } else {
-            if let Some(v) = resp.data {
-                Ok(v)
-            } else {
-                Err(Error::EmptyResp)
-            }
+            Err(Error::EmptyResp)
         }
     }
 
