@@ -72,6 +72,11 @@ pub mod campus {
         use super::*;
 
         pub const QUERY_CARD_BALANCE: &str = cc!(BASE_URL, "/compus/user/getCardMoney");
+
+        pub const QUERY_CONSUMPTION_RECORDS: &str = cc!(BASE_URL, "/compus/user/queryNo");
+
+        pub const QUERY_TRANSACTION_RECORDS: &str =
+            cc!(BASE_URL, "/routepay/route/order/queryTradePage");
     }
 }
 

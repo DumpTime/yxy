@@ -80,10 +80,10 @@ struct CommonResponse<D = (), R = ()> {
     pub status_code: i64,
     /// Error code
     pub biz_code: Option<String>,
-    pub message: String,
+    pub message: Option<String>,
     pub success: bool,
     pub data: Option<D>,
-    pub _rows: Option<R>,
+    pub rows: Option<R>,
 }
 
 /// # Returns

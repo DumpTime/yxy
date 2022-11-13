@@ -256,7 +256,8 @@ impl LoginHandler {
         if check_auth_status(&resp)? {
             return Err(Error::Runtime(format!(
                 "Login error: ({}); {}",
-                resp.status_code, resp.message
+                resp.status_code,
+                resp.message.unwrap_or_default(),
             )));
         }
 

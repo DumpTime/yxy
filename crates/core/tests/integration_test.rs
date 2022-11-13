@@ -82,22 +82,37 @@ async fn app_auth() -> Result {
 #[ignore]
 #[tokio::test]
 async fn campus() {
+    use chrono::prelude::*;
     use yxy::bind::campus::*;
 
-    let handler = CampusHandler::build(
-        &CONFIG.device_id,
-        &CONFIG.uid,
-        &CONFIG.school_code,
-        Some(&CONFIG.campus_token),
-    )
-    .unwrap();
-    let record = handler.query_card_balance().await.unwrap();
+    let handler = Arc::new(
+        CampusHandler::build(
+            &CONFIG.device_id,
+            &CONFIG.uid,
+            &CONFIG.school_code,
+            Some(&CONFIG.campus_token),
+        )
+        .unwrap(),
+    );
+
+    let h1 = handler.clone();
+    let task1 = tokio::spawn(async move {
+        let dt = Local::now();
+        let time = dt.format("%Y%m%d").to_string();
+        println!("Local time: {}", &time);
+        let records = h1.consumption_records(&time).await.unwrap();
+        println!("{:#?}", records);
+    });
+
+    let record = handler.card_balance().await.unwrap();
     println!("{}", record);
+
+    try_join!(task1).unwrap();
 }
 
 #[ignore]
 #[tokio::test]
-async fn campus_login() {
+async fn login() {
     use yxy::bind::campus::login::*;
 
     let handler = Arc::new(LoginHandler::build(&CONFIG.device_id).unwrap());
