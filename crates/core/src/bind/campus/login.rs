@@ -87,11 +87,15 @@ impl LoginHandler {
         let resp: BasicResponse<String> = resp.json().await?;
         if !resp.success {
             Err(Error::Runtime(format!(
-                "Get image captcha failed: {}",
-                resp.message
+                "Get image captcha failed: ({}); {}",
+                resp.status_code, resp.message
             )))
         } else {
-            Ok(resp.data.unwrap())
+            if let Some(v) = resp.data {
+                Ok(v)
+            } else {
+                Err(Error::EmptyResp)
+            }
         }
     }
 
@@ -154,9 +158,11 @@ impl LoginHandler {
         }
 
         // User status
-        let user_exists = resp.data.unwrap().user_exists;
-
-        Ok(user_exists)
+        if let Some(v) = resp.data {
+            Ok(v.user_exists)
+        } else {
+            Err(Error::EmptyResp)
+        }
     }
 
     /// Do login by verification code
@@ -196,9 +202,12 @@ impl LoginHandler {
                 resp.status_code, resp.message
             )));
         }
-        let result = resp.data.unwrap();
 
-        Ok(result)
+        if let Some(v) = resp.data {
+            Ok(v)
+        } else {
+            Err(Error::EmptyResp)
+        }
     }
 
     /// Do login in silent
@@ -206,47 +215,58 @@ impl LoginHandler {
     /// Bind to [`crate::url::campus::DO_LOGIN_BY_TOKEN`]
     ///
     /// **token** is optional.
-    /// If `None` is provided, a random one will be generated
+    /// If `None` is provided, a random one will be generated.
+    ///
+    /// The set of UID-DeviceID binding is the key to authentication.
     ///
     /// Used to get new [`LoginInfo`] (contains new token)
     /// Also can be used to check specific device user login status.
-    pub async fn silent_login(&self, uid: &str, token: &str) -> Result<LoginInfo> {
+    pub async fn silent_login(&self, uid: &str, token: Option<&str>) -> Result<LoginInfo> {
         let mut body = self.req_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("osType", super::OS_TYPE));
         body.push(("osUuid", &self.device_id));
         body.push(("osVersion", super::OS_VERSION));
-        body.push(("token", token));
         body.push(("ymId", uid));
 
-        let mut resp = self
-            .client
-            .post(DO_LOGIN_BY_TOKEN)
-            .form(&body)
-            .send()
-            .await?;
+        let mut resp = if let Some(t) = token {
+            body.push(("token", t));
+            self.client
+                .post(DO_LOGIN_BY_TOKEN)
+                .form(&body)
+                .send()
+                .await?
+        } else {
+            let t = gen_random_fake_md5();
+            body.push(("token", &t));
+            self.client
+                .post(DO_LOGIN_BY_TOKEN)
+                .form(&body)
+                .send()
+                .await?
+        };
+
         check_response(&mut resp).await?;
 
         let buf = resp.bytes().await?;
 
-        let resp: BasicResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
+        let resp: CommonResponse<LoginInfo> = match serde_json::from_slice(buf.as_ref()) {
             Ok(v) => v,
             Err(e) => return Err(Error::Deserialize(e, buf)),
         };
 
-        if !resp.success {
-            if resp.message.starts_with(error_messages::WRONG_SECRET) {
-                return Err(Error::BadLoginSecret);
-            }
-
+        if check_auth_status(&resp)? {
             return Err(Error::Runtime(format!(
                 "Login error: ({}); {}",
                 resp.status_code, resp.message
             )));
         }
-        let result = resp.data.unwrap();
 
-        Ok(result)
+        if let Some(v) = resp.data {
+            Ok(v)
+        } else {
+            Err(Error::EmptyResp)
+        }
     }
 
     /// Get the public key used to encrypt the password
@@ -277,7 +297,11 @@ impl LoginHandler {
             )));
         }
 
-        Ok(resp.data.unwrap().public_key)
+        if let Some(v) = resp.data {
+            Ok(v.public_key)
+        } else {
+            Err(Error::EmptyResp)
+        }
     }
 
     /// Do login by password
@@ -331,17 +355,20 @@ impl LoginHandler {
             if resp.message.starts_with(error_messages::WRONG_SECRET) {
                 return Err(Error::BadLoginSecret);
             } else if resp.message == error_messages::DEVICE_CHANGED {
-                return Err(Error::DeviceChanged);
+                return Err(Error::AuthDeviceChanged);
             }
 
             return Err(Error::Runtime(format!(
-                "Login error: {{code: {}, msg: {}}}",
+                "Login error: ({}); {}",
                 resp.status_code, resp.message
             )));
         }
-        let result = resp.data.unwrap();
 
-        Ok(result)
+        if let Some(v) = resp.data {
+            Ok(v)
+        } else {
+            Err(Error::EmptyResp)
+        }
     }
 }
 

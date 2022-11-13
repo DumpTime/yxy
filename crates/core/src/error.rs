@@ -11,6 +11,10 @@ pub enum Error {
     Runtime(String),
     #[error("Authorization Error: {0}")]
     Auth(String),
+    #[error("Auth: User not found (session expired)")]
+    AuthUserNotFound,
+    #[error("Device changed")]
+    AuthDeviceChanged,
     #[error("JSON deserialize Error: {0}; Data: {1:#?}")]
     Deserialize(serde_json::Error, Bytes),
     #[error("Empty response.")]
@@ -23,10 +27,6 @@ pub enum Error {
     BadPhoneNumber,
     #[error("Invalid secrets.")]
     BadLoginSecret,
-    #[error("Device changed")]
-    DeviceChanged,
-    #[error("User not found")]
-    UserNotFound,
 
     #[error(transparent)]
     IO(#[from] std::io::Error),

@@ -4,6 +4,7 @@
 
 use super::*;
 use crate::{url::campus, utils::gen_random_fake_md5};
+use serde::Deserialize;
 
 pub mod login;
 pub mod user;
@@ -70,4 +71,36 @@ pub fn init_app_sim_client(device_id: &str) -> Result<Client> {
         .build()?;
 
     Ok(result)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CommonResponse<D = (), R = ()> {
+    pub status_code: i64,
+    /// Error code
+    pub biz_code: Option<i64>,
+    pub message: String,
+    pub success: bool,
+    pub data: Option<D>,
+    pub _rows: Option<R>,
+}
+
+/// # Returns
+/// - `Err` for handled errors.
+/// - `Ok(true)` for some error unhandled.
+/// - `Ok(false)` for no error.
+fn check_auth_status<D, R>(resp: &CommonResponse<D, R>) -> Result<bool> {
+    if !resp.success {
+        if resp.status_code == 204 {
+            if let Some(code) = resp.biz_code {
+                match code {
+                    10010 => return Err(Error::AuthUserNotFound),
+                    10011 => return Err(Error::AuthDeviceChanged),
+                    _ => {}
+                }
+            }
+        }
+        return Ok(true); // Unhandled errors
+    }
+    Ok(false)
 }
