@@ -92,16 +92,22 @@ struct CommonResponse<D = (), R = ()> {
 /// - `Ok(false)` for no error.
 fn check_auth_status<D, R>(resp: &CommonResponse<D, R>) -> Result<bool> {
     if !resp.success {
-        if resp.status_code == 204 {
-            if let Some(ref code) = resp.biz_code {
-                let code = code.parse::<i64>();
-                match code {
-                    Ok(v) if v == 10010 => return Err(Error::AuthUserNotFound),
-                    Ok(v) if v == 10011 => return Err(Error::AuthDeviceChanged),
-                    // Ignore
-                    _ => {}
+        match resp.status_code {
+            203 => {
+                return Err(Error::NoBind);
+            }
+            204 => {
+                if let Some(ref code) = resp.biz_code {
+                    let code = code.parse::<i64>();
+                    match code {
+                        Ok(v) if v == 10010 => return Err(Error::AuthUserNotFound),
+                        Ok(v) if v == 10011 => return Err(Error::AuthDeviceChanged),
+                        // Ignore
+                        _ => {}
+                    }
                 }
             }
+            _ => {}
         }
         return Ok(true); // Unhandled errors
     }

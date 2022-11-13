@@ -111,7 +111,7 @@ async fn campus() {
     });
 
     let record = handler.card_balance().await.unwrap();
-    println!("{}", record);
+    println!("[Info:] card balance: {}", record);
 
     try_join!(task1, task2).unwrap();
 }
