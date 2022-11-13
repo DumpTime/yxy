@@ -92,6 +92,31 @@ async fn campus() {
     )
     .unwrap();
     let record = handler.query_card_balance().await.unwrap();
-
     println!("{}", record);
+}
+
+#[ignore]
+#[tokio::test]
+async fn campus_login() {
+    use yxy::bind::campus::login::*;
+
+    let handler = Arc::new(LoginHandler::build(&CONFIG.device_id).unwrap());
+
+    let h1 = handler.clone();
+    let task1 = tokio::spawn(async move {
+        let pub_key = h1.get_public_key().await.unwrap();
+        let result = h1
+            .do_login_by_password(&CONFIG.phone_num, &CONFIG.password, &pub_key)
+            .await
+            .unwrap();
+        println!("{:#?}", result);
+    });
+
+    let result = handler
+        .silent_login(&CONFIG.uid, Some(&CONFIG.campus_token))
+        .await
+        .unwrap();
+    println!("{:#?}", result);
+
+    try_join!(task1).unwrap();
 }

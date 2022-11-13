@@ -2,9 +2,10 @@
 //!
 //! See [`login`] for authorize.
 
+use serde::Deserialize;
+
 use super::*;
 use crate::{url::campus, utils::gen_random_fake_md5};
-use serde::Deserialize;
 
 pub mod login;
 pub mod user;
@@ -78,7 +79,7 @@ pub fn init_app_sim_client(device_id: &str) -> Result<Client> {
 struct CommonResponse<D = (), R = ()> {
     pub status_code: i64,
     /// Error code
-    pub biz_code: Option<i64>,
+    pub biz_code: Option<String>,
     pub message: String,
     pub success: bool,
     pub data: Option<D>,
@@ -92,10 +93,12 @@ struct CommonResponse<D = (), R = ()> {
 fn check_auth_status<D, R>(resp: &CommonResponse<D, R>) -> Result<bool> {
     if !resp.success {
         if resp.status_code == 204 {
-            if let Some(code) = resp.biz_code {
+            if let Some(ref code) = resp.biz_code {
+                let code = code.parse::<i64>();
                 match code {
-                    10010 => return Err(Error::AuthUserNotFound),
-                    10011 => return Err(Error::AuthDeviceChanged),
+                    Ok(v) if v == 10010 => return Err(Error::AuthUserNotFound),
+                    Ok(v) if v == 10011 => return Err(Error::AuthDeviceChanged),
+                    // Ignore
                     _ => {}
                 }
             }
