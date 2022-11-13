@@ -97,17 +97,23 @@ async fn campus() {
 
     let h1 = handler.clone();
     let task1 = tokio::spawn(async move {
-        let dt = Local::now();
+        let dt = Utc::now();
         let time = dt.format("%Y%m%d").to_string();
         println!("Local time: {}", &time);
         let records = h1.consumption_records(&time).await.unwrap();
         println!("{:#?}", records);
     });
 
+    let h1 = handler.clone();
+    let task2 = tokio::spawn(async move {
+        let records = h1.transaction_records(0, 20).await.unwrap();
+        println!("{:#?}", records);
+    });
+
     let record = handler.card_balance().await.unwrap();
     println!("{}", record);
 
-    try_join!(task1).unwrap();
+    try_join!(task1, task2).unwrap();
 }
 
 #[ignore]
