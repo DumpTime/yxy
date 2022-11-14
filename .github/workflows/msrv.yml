@@ -26,8 +26,12 @@ jobs:
         run: cargo install cargo-msrv --force
 
       - name: MSRV list
-        run: cargo msrv list
+        run: |
+          cd ./crates/core/
+          cargo msrv list
 
       - name: MSRV find
-        run: cargo msrv
+        run: |
+          cd ./crates/core/
+          cargo msrv
           
