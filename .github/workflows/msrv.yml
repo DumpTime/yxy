@@ -1,0 +1,33 @@
+name: MSRV
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Rustup
+        run: |
+          rustup update
+          
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-msrv
+        run: cargo install cargo-msrv --force
+
+      - name: MSRV list
+        run: cargo msrv list
+
+      - name: MSRV find
+        run: cargo msrv
+          
