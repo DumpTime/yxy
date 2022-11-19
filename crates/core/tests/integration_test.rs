@@ -100,8 +100,12 @@ async fn campus() {
         let dt = Utc::now();
         let time = dt.format("%Y%m%d").to_string();
         println!("Local time: {}", &time);
-        let records = h1.consumption_records(&time).await.unwrap();
-        println!("{:#?}", records);
+        let result = h1.consumption_records(&time).await;
+        match result {
+            Ok(v) => println!("{:#?}", v),
+            Err(yxy::error::Error::EmptyResp) => {}
+            Err(e) => panic!("{}", e),
+        }
     });
 
     let h1 = handler.clone();
