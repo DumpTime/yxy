@@ -1,8 +1,8 @@
 use axum::{extract::Query, http::StatusCode, Json};
-
-use crate::handler::ResultE;
 use yxy::error::Error;
 use yxy::wrapper::*;
+
+use crate::handler::ResultE;
 
 pub mod auth {
     use super::*;

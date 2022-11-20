@@ -1,5 +1,3 @@
-use crate::handler;
-
 use axum::{
     body::Body,
     http::{Request, StatusCode},
@@ -8,6 +6,8 @@ use axum::{
     routing::get,
     Router,
 };
+
+use crate::handler;
 
 pub fn init() -> Router {
     let v1 = Router::new().nest(

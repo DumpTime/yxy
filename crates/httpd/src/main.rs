@@ -1,7 +1,7 @@
-use yxy_httpd::router;
+use std::net::SocketAddr;
 
 use clap::Parser;
-use std::net::SocketAddr;
+use yxy_httpd::router;
 
 #[tokio::main]
 async fn main() {
