@@ -210,7 +210,7 @@ impl LoginHandler {
 
     /// Do login in silent
     ///
-    /// Bind to [`crate::url::campus::DO_LOGIN_BY_TOKEN`]
+    /// Bind to [`DO_LOGIN_BY_TOKEN`]
     ///
     /// **token** is optional.
     /// If `None` is provided, a random one will be generated.
@@ -307,7 +307,7 @@ impl LoginHandler {
     ///
     /// Only work on same device (by using same `deviceId`)
     ///
-    /// Get the public key by [`Self::get_public_key`]
+    /// Get the public key by [`Self::public_key`]
     ///
     /// The function will encrypt the password by [`crate::utils::encrypt_password`]
     ///
@@ -317,7 +317,7 @@ impl LoginHandler {
     /// # async fn run() -> Result<(), Error> {
     /// // Use the UUID of last login device
     /// let handler = LoginHandler::build("d3ae7e7e-9c98-4498-beda-78e9e342a389")?;
-    /// let public_key = handler.get_public_key().await?;
+    /// let public_key = handler.public_key().await?;
     /// let login_info = handler.do_login_by_password("18888888888", "password", &public_key).await?;
     ///
     /// # Ok(())

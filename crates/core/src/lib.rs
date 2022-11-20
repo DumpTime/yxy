@@ -93,7 +93,7 @@
 //! let handler = yxy::LoginHandler::new()?;
 //!
 //! println!("Querying security token...");
-//! let security_token: yxy::SecurityTokenInfo = handler.get_security_token().await?;
+//! let security_token: yxy::SecurityTokenInfo = handler.security_token().await?;
 //! if verbose {
 //!     println!("Success: {:?}", security_token);
 //! }
@@ -102,7 +102,7 @@
 //! if security_token.level != 0 {
 //!     // image captcha required
 //!     println!("Image captcha required.");
-//!     let result = handler.get_captcha_image(&security_token.security_token).await?;
+//!     let result = handler.captcha_image(&security_token.security_token).await?;
 //!
 //!     println!("Captcha: {}", result);
 //!

@@ -83,7 +83,7 @@ impl CampusHandler {
 
     /// Qeury campus APP account transaction records
     ///
-    /// Pay attention to distinguish it from [`consumption_records`].
+    /// Pay attention to distinguish it from [`Self::consumption_records`].
     ///
     /// Query results will be paginated (Using `offset` and `limit`).
     pub async fn transaction_records(&self, offset: u32, limit: u32) -> Result<TransactionRecords> {

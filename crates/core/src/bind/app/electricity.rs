@@ -126,8 +126,6 @@ impl AppHandler {
     }
 
     /// Query my recharge records
-    ///
-    /// Returns [`MyRechargeRecord`] list
     pub async fn user_recharge_records(&self, page: u32) -> Result<Vec<UserRechargeRecord>> {
         let page = page.to_string();
         let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
