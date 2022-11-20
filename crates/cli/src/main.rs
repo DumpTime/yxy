@@ -163,7 +163,7 @@ async fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Err
     let handler = yxy::bind::campus::login::LoginHandler::new()?;
 
     println!("Querying security token...");
-    let security_token = handler.get_security_token().await?;
+    let security_token = handler.security_token().await?;
     if verbose {
         println!("Success: {:?}", security_token);
     }
@@ -173,7 +173,7 @@ async fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Err
         // image captcha required
         println!("Image captcha required.");
         let result = handler
-            .get_captcha_image(&security_token.security_token)
+            .captcha_image(&security_token.security_token)
             .await?;
 
         println!("Captcha: {}", result);

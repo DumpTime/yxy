@@ -44,7 +44,7 @@ impl LoginHandler {
     }
 
     /// Return security token & level
-    pub async fn get_security_token(&self) -> Result<SecurityTokenInfo> {
+    pub async fn security_token(&self) -> Result<SecurityTokenInfo> {
         let body = self.req_body();
 
         let mut resp = self
@@ -58,8 +58,8 @@ impl LoginHandler {
         let resp: BasicResponse<SecurityTokenInfo> = resp.json().await?;
         if !resp.success {
             return Err(Error::Runtime(format!(
-                "Get security token failed: {}",
-                resp.message
+                "Get security token failed: ({}); {}",
+                resp.status_code, resp.message,
             )));
         }
 
@@ -72,7 +72,7 @@ impl LoginHandler {
     /// Get image captcha
     ///
     /// Return image captcha base64 string
-    pub async fn get_captcha_image(&self, security_token: &str) -> Result<String> {
+    pub async fn captcha_image(&self, security_token: &str) -> Result<String> {
         let mut body = self.req_body();
         body.push(("securityToken", security_token));
 
@@ -269,7 +269,7 @@ impl LoginHandler {
     }
 
     /// Get the public key used to encrypt the password
-    pub async fn get_public_key(&self) -> Result<String> {
+    pub async fn public_key(&self) -> Result<String> {
         let body = self.req_body();
 
         let mut resp = self.client.post(GET_PUBLIC_KEY).form(&body).send().await?;
