@@ -27,10 +27,10 @@ impl LoginHandler {
     }
 
     /// Init handler by specific device id
-    pub fn build(device_id: &str) -> Result<Self> {
+    pub fn build(device_id: String) -> Result<Self> {
         Ok(Self {
-            device_id: device_id.to_string(),
-            client: init_app_sim_client(device_id)?,
+            client: init_app_sim_client(&device_id)?,
+            device_id,
         })
     }
 
