@@ -125,7 +125,7 @@ async fn campus() {
 async fn login() {
     use yxy::bind::campus::login::*;
 
-    let handler = Arc::new(LoginHandler::build(&CONFIG.device_id).unwrap());
+    let handler = Arc::new(LoginHandler::build(CONFIG.device_id.to_string()).unwrap());
 
     let h1 = handler.clone();
     let task1 = tokio::spawn(async move {
