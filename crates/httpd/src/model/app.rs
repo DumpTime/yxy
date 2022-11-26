@@ -28,8 +28,8 @@ pub mod auth {
         pub bind_card_status: Option<i8>,
     }
 
-    impl Response {
-        pub fn build((t, v): (String, yxy::UserInfo)) -> Self {
+    impl From<(String, yxy::UserInfo)> for Response {
+        fn from((t, v): (String, yxy::UserInfo)) -> Self {
             Self {
                 token: t,
                 id: v.id,
@@ -110,8 +110,8 @@ pub mod electricity {
             pub room_status: Option<String>,
         }
 
-        impl Response {
-            pub fn build(mut v: yxy::SurplusInfo) -> Self {
+        impl From<yxy::SurplusInfo> for Response {
+            fn from(mut v: yxy::SurplusInfo) -> Self {
                 if let Some(s) = v.surplus_list.pop() {
                     Self {
                         school_code: v.school_code,
@@ -179,8 +179,8 @@ pub mod electricity {
             pub create_time: String,
         }
 
-        impl Response {
-            pub fn build(v: yxy::BindInfo) -> Self {
+        impl From<yxy::BindInfo> for Response {
+            fn from(v: yxy::BindInfo) -> Self {
                 Self {
                     id: v.id,
                     school_code: v.school_code,
