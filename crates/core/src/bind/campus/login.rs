@@ -326,7 +326,7 @@ impl LoginHandler {
     /// // Use the UUID of last login device
     /// let handler = LoginHandler::build("d3ae7e7e-9c98-4498-beda-78e9e342a389".to_string())?;
     /// let public_key = handler.public_key().await?;
-    /// let login_info = handler.do_login_by_password("18888888888", "password", &public_key).await?;
+    /// let login_info = handler.login_by_password("18888888888", "password", &public_key).await?;
     ///
     /// # Ok(())
     /// # }

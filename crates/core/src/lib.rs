@@ -131,7 +131,7 @@
 //! std::io::stdin().read_line(&mut code)?;
 //!
 //! println!("Login...");
-//! let result: yxy::LoginInfo = handler.do_login_by_code(phone_num, &code).await?;
+//! let result: yxy::LoginInfo = handler.login_by_code(phone_num, &code).await?;
 //! if verbose {
 //!     println!("Login response: {:?}", result);
 //! }
