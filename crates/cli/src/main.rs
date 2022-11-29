@@ -205,7 +205,7 @@ async fn query_uid(phone_num: &str, verbose: bool) -> Result<(), yxy::error::Err
     std::io::stdin().read_line(&mut code)?;
 
     println!("Login...");
-    let result = handler.do_login_by_code(phone_num, &code).await?;
+    let result = handler.login_by_code(phone_num, &code).await?;
     if verbose {
         println!("Login response: {:?}", result);
     }

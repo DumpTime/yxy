@@ -166,7 +166,7 @@ impl LoginHandler {
     /// Do login by verification code
     ///
     /// return [`LoginInfo`]
-    pub async fn do_login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo> {
+    pub async fn login_by_code(&self, phone_num: &str, code: &str) -> Result<LoginInfo> {
         let mut body = self.req_body();
         body.push(("clientId", super::CLIENT_ID));
         body.push(("mobilePhone", phone_num));
@@ -323,7 +323,7 @@ impl LoginHandler {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn do_login_by_password(
+    pub async fn login_by_password(
         &self,
         phone_num: &str,
         password: &str,

@@ -131,7 +131,7 @@ async fn login() {
     let task1 = tokio::spawn(async move {
         let pub_key = h1.public_key().await.unwrap();
         let result = h1
-            .do_login_by_password(&CONFIG.phone_num, &CONFIG.password, &pub_key)
+            .login_by_password(&CONFIG.phone_num, &CONFIG.password, &pub_key)
             .await
             .unwrap();
         println!("{:#?}", result);
