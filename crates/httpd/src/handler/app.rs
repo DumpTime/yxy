@@ -35,10 +35,11 @@ pub mod electricity {
             }
         }
 
-        pub async fn by_room_info(v: Json<RoomInfoRequest>) -> ResultE<Json<Response>> {
+        pub async fn by_room_info(v: Query<RoomInfoRequest>) -> ResultE<Json<Response>> {
             let (token, room_info) = v.0.split();
             match query_ele_by_room_info(&token, &room_info).await {
                 Ok(v) => Ok(Json(Response::from(v))),
+                Err(e @ Error::Auth(_)) => Err((StatusCode::UNAUTHORIZED, e.to_string())),
                 Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
             }
         }
@@ -54,6 +55,7 @@ pub mod electricity {
             match query_ele_bind(&token).await {
                 Ok(v) => Ok(Json(bind::Response::from(v))),
                 Err(e @ Error::NoBind) => Err((StatusCode::NOT_FOUND, e.to_string())),
+                Err(e @ Error::Auth(_)) => Err((StatusCode::UNAUTHORIZED, e.to_string())),
                 Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
             }
         }

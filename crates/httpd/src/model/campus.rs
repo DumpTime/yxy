@@ -29,14 +29,14 @@ pub mod login {
         pub struct LoginByCode {
             pub device_id: String,
             pub phone_num: String,
-            pub verification_code: String,
+            pub code: String,
         }
 
         #[derive(Deserialize)]
         pub struct SilentLogin {
             pub device_id: String,
             pub uid: String,
-            pub token: String,
+            pub token: Option<String>,
         }
 
         #[derive(Deserialize)]
@@ -84,7 +84,6 @@ pub mod login {
             /// App session token
             pub token: String,
             pub device_id: String,
-            pub account: String,
             /// 1 as male, 0 as female
             pub sex: Option<i8>,
             pub school_code: Option<String>,
@@ -109,7 +108,7 @@ pub mod login {
             pub points: Option<i32>,
             pub school_identity_type: Option<i32>,
             /// Some json extensions
-            pub ext_json: Option<String>,
+            pub extra_json: Option<String>,
         }
 
         impl From<yxy::LoginInfo> for LoginInfo {
@@ -118,7 +117,6 @@ pub mod login {
                     uid: v.id,
                     token: v.token,
                     device_id: v.device_id,
-                    account: v.account,
                     sex: v.sex,
                     school_code: v.school_code,
                     school_name: v.school_name,
@@ -141,7 +139,7 @@ pub mod login {
                     bind_card_rate: v.bind_card_rate,
                     points: v.points,
                     school_identity_type: v.school_identity_type,
-                    ext_json: v.ext_json,
+                    extra_json: v.ext_json,
                 }
             }
         }

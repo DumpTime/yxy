@@ -86,6 +86,10 @@ impl LoginHandler {
 
         let resp: BasicResponse<String> = resp.json().await?;
         if !resp.success {
+            if resp.message == error_messages::BAD_TOKEN {
+                return Err(Error::BadInput(resp.message));
+            }
+
             Err(Error::Runtime(format!(
                 "Get image captcha failed: ({}); {}",
                 resp.status_code, resp.message
@@ -147,6 +151,10 @@ impl LoginHandler {
                 {
                     return Err(Error::Limited);
                 }
+            }
+
+            if resp.message == error_messages::VERIFICATION_EXPIRED {
+                return Err(Error::BadInput(resp.message));
             }
 
             return Err(Error::Runtime(format!(
@@ -546,4 +554,6 @@ mod error_messages {
     pub const TOO_MANY_TRIES: &str = "发送超限，请明天再来";
     pub const FLOW_CONTROL: &str = "触发号码天级流控";
     pub const DEVICE_CHANGED: &str = "设备已更换";
+    pub const VERIFICATION_EXPIRED: &str = "验证码已失效";
+    pub const BAD_TOKEN: &str = "token无效";
 }

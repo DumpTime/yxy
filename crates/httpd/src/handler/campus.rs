@@ -1,4 +1,5 @@
 use axum::{extract::Query, http::StatusCode, Json};
+use yxy::error::Error;
 
 use super::*;
 
@@ -36,55 +37,60 @@ pub mod login {
 
         match handler.captcha_image(&security_token).await {
             Ok(v) => Ok(Json(response::CaptchaImage { img: v })),
+            Err(e @ Error::BadInput(_)) => Err((StatusCode::BAD_REQUEST, e.to_string())),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
         }
     }
 
     pub async fn send_verification_code(
-        Query(request::SendVerificationCode {
+        Json(request::SendVerificationCode {
             security_token,
             device_id,
             phone_num,
             captcha,
-        }): Query<request::SendVerificationCode>,
+        }): Json<request::SendVerificationCode>,
     ) -> ResultE<Json<response::SendVerificationCode>> {
         let handler = build_handler(device_id)?;
 
         match handler
-            .send_verification_code(&security_token, &phone_num, captcha.as_deref())
+            .send_verification_code(&phone_num, &security_token, captcha.as_deref())
             .await
         {
             Ok(v) => Ok(Json(response::SendVerificationCode { user_exists: v })),
+            Err(e @ Error::BadInput(_)) => Err((StatusCode::BAD_REQUEST, e.to_string())),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
         }
     }
 
     pub async fn login_by_code(
-        Query(request::LoginByCode {
+        Json(request::LoginByCode {
             device_id,
             phone_num,
-            verification_code,
-        }): Query<request::LoginByCode>,
+            code,
+        }): Json<request::LoginByCode>,
     ) -> ResultE<Json<response::LoginInfo>> {
         let handler = build_handler(device_id)?;
 
-        match handler.login_by_code(&phone_num, &verification_code).await {
+        match handler.login_by_code(&phone_num, &code).await {
             Ok(v) => Ok(Json(v.into())),
+            Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, e.to_string())),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
         }
     }
 
     pub async fn silent_login(
-        Query(request::SilentLogin {
+        Json(request::SilentLogin {
             device_id,
             uid,
             token,
-        }): Query<request::SilentLogin>,
+        }): Json<request::SilentLogin>,
     ) -> ResultE<Json<response::LoginInfo>> {
         let handler = build_handler(device_id)?;
 
-        match handler.silent_login(&uid, Some(&token)).await {
+        match handler.silent_login(&uid, token.as_deref()).await {
             Ok(v) => Ok(Json(v.into())),
+            Err(e @ Error::AuthUserNotFound) => Err((StatusCode::FORBIDDEN, e.to_string())),
+            Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, e.to_string())),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
         }
     }
@@ -101,12 +107,12 @@ pub mod login {
     }
 
     pub async fn login_by_password(
-        Query(request::LoginByPassword {
+        Json(request::LoginByPassword {
             device_id,
             phone_num,
             password,
             public_key,
-        }): Query<request::LoginByPassword>,
+        }): Json<request::LoginByPassword>,
     ) -> ResultE<Json<response::LoginInfo>> {
         let handler = build_handler(device_id)?;
 
@@ -115,6 +121,8 @@ pub mod login {
             .await
         {
             Ok(v) => Ok(Json(v.into())),
+            Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, e.to_string())),
+            Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, e.to_string())),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
         }
     }

@@ -27,6 +27,8 @@ pub enum Error {
     BadPhoneNumber,
     #[error("Invalid secrets.")]
     BadLoginSecret,
+    #[error("Bad Input: {0}")]
+    BadInput(String),
 
     #[error(transparent)]
     IO(#[from] std::io::Error),
