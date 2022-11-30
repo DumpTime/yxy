@@ -15,12 +15,12 @@ fn build_handler(
 ) -> ResultE<CampusHandler> {
     match CampusHandler::build(device_id, uid, school_code, token) {
         Ok(v) => Ok(v),
-        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+        Err(e) => Err((StatusCode::BAD_REQUEST, Json(e.into()))),
     }
 }
 
 impl TryFrom<BasicInfo> for CampusHandler {
-    type Error = (axum::http::StatusCode, String);
+    type Error = (axum::http::StatusCode, Json<ErrorResponse>);
 
     fn try_from(
         BasicInfo {
@@ -32,7 +32,7 @@ impl TryFrom<BasicInfo> for CampusHandler {
     ) -> ResultE<Self> {
         match CampusHandler::build(&device_id, &uid, &school_code, token.as_deref()) {
             Ok(v) => Ok(v),
-            Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+            Err(e) => Err((StatusCode::BAD_REQUEST, Json(e.into()))),
         }
     }
 }
@@ -47,7 +47,7 @@ pub mod login {
     fn build_handler(device_id: String) -> ResultE<LoginHandler> {
         match LoginHandler::build(device_id) {
             Ok(v) => Ok(v),
-            Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+            Err(e) => Err((StatusCode::BAD_REQUEST, Json(e.into()))),
         }
     }
 
@@ -58,7 +58,7 @@ pub mod login {
 
         match handler.security_token().await {
             Ok(v) => Ok(Json(v.into())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -72,8 +72,8 @@ pub mod login {
 
         match handler.captcha_image(&security_token).await {
             Ok(v) => Ok(Json(response::CaptchaImage { img: v })),
-            Err(e @ Error::BadInput(_)) => Err((StatusCode::BAD_REQUEST, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::BadInput(_)) => Err((StatusCode::BAD_REQUEST, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -92,8 +92,8 @@ pub mod login {
             .await
         {
             Ok(v) => Ok(Json(response::SendVerificationCode { user_exists: v })),
-            Err(e @ Error::BadInput(_)) => Err((StatusCode::BAD_REQUEST, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::BadInput(_)) => Err((StatusCode::BAD_REQUEST, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -108,8 +108,8 @@ pub mod login {
 
         match handler.login_by_code(&phone_num, &code).await {
             Ok(v) => Ok(Json(v.into())),
-            Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -124,9 +124,9 @@ pub mod login {
 
         match handler.silent_login(&uid, token.as_deref()).await {
             Ok(v) => Ok(Json(v.into())),
-            Err(e @ Error::AuthUserNotFound) => Err((StatusCode::FORBIDDEN, e.to_string())),
-            Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::AuthUserNotFound) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
+            Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -137,7 +137,7 @@ pub mod login {
 
         match handler.public_key().await {
             Ok(v) => Ok(Json(response::PublicKey { key: v })),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -156,9 +156,9 @@ pub mod login {
             .await
         {
             Ok(v) => Ok(Json(v.into())),
-            Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, e.to_string())),
-            Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
+            Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 }
@@ -174,7 +174,7 @@ pub mod user {
 
         match handler.card_balance().await {
             Ok(v) => Ok(Json(response::CardBalance { balance: v })),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -191,9 +191,9 @@ pub mod user {
 
         match handler.consumption_records(&query_time).await {
             Ok(v) => Ok(Json(v.into())),
-            Err(e @ Error::NoBind) => Err((StatusCode::FORBIDDEN, e.to_string())),
-            Err(e @ Error::EmptyResp) => Err((StatusCode::NO_CONTENT, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::NoBind) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
+            Err(e @ Error::EmptyResp) => Err((StatusCode::NO_CONTENT, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 
@@ -211,8 +211,8 @@ pub mod user {
 
         match handler.transaction_records(offset, limit).await {
             Ok(v) => Ok(Json(v.into())),
-            Err(e @ Error::EmptyResp) => Err((StatusCode::NO_CONTENT, e.to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+            Err(e @ Error::EmptyResp) => Err((StatusCode::NO_CONTENT, Json(e.into()))),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
         }
     }
 }

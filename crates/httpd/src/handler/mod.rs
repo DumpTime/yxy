@@ -1,4 +1,8 @@
+use axum::Json;
+
+use crate::model::ErrorResponse;
+
 pub mod app;
 pub mod campus;
 
-type ResultE<T> = std::result::Result<T, (axum::http::StatusCode, String)>;
+type ResultE<T, E = Json<ErrorResponse>> = std::result::Result<T, (axum::http::StatusCode, E)>;
