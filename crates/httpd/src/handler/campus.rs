@@ -1,14 +1,49 @@
+use std::convert::{TryFrom, TryInto};
+
 use axum::{extract::Query, http::StatusCode, Json};
-use yxy::error::Error;
+use yxy::{bind::campus::CampusHandler, error::Error};
 
 use super::*;
+use crate::model::campus::{self, BasicInfo};
+
+/// Build [`CampusHandler`]
+fn build_handler(
+    device_id: &str,
+    uid: &str,
+    school_code: &str,
+    token: Option<&str>,
+) -> ResultE<CampusHandler> {
+    match CampusHandler::build(device_id, uid, school_code, token) {
+        Ok(v) => Ok(v),
+        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+    }
+}
+
+impl TryFrom<BasicInfo> for CampusHandler {
+    type Error = (axum::http::StatusCode, String);
+
+    fn try_from(
+        BasicInfo {
+            device_id,
+            token,
+            uid,
+            school_code,
+        }: BasicInfo,
+    ) -> ResultE<Self> {
+        match CampusHandler::build(&device_id, &uid, &school_code, token.as_deref()) {
+            Ok(v) => Ok(v),
+            Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+        }
+    }
+}
 
 pub mod login {
     use yxy::bind::campus::login::*;
 
     use super::*;
-    use crate::model::campus::login::*;
+    use campus::login::*;
 
+    /// Build [`LoginHandler`]
     fn build_handler(device_id: String) -> ResultE<LoginHandler> {
         match LoginHandler::build(device_id) {
             Ok(v) => Ok(v),
@@ -123,6 +158,60 @@ pub mod login {
             Ok(v) => Ok(Json(v.into())),
             Err(e @ Error::BadLoginSecret) => Err((StatusCode::FORBIDDEN, e.to_string())),
             Err(e @ Error::AuthDeviceChanged) => Err((StatusCode::FORBIDDEN, e.to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        }
+    }
+}
+
+pub mod user {
+    use super::*;
+    use campus::user::*;
+
+    pub async fn card_balance(
+        Query(info): Query<BasicInfo>,
+    ) -> ResultE<Json<response::CardBalance>> {
+        let handler: CampusHandler = info.try_into()?;
+
+        match handler.card_balance().await {
+            Ok(v) => Ok(Json(response::CardBalance { balance: v })),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        }
+    }
+
+    pub async fn consumption_records(
+        Query(request::ConsumptionRecords {
+            device_id,
+            token,
+            uid,
+            school_code,
+            query_time,
+        }): Query<request::ConsumptionRecords>,
+    ) -> ResultE<Json<response::ConsumptionRecords>> {
+        let handler = build_handler(&device_id, &uid, &school_code, token.as_deref())?;
+
+        match handler.consumption_records(&query_time).await {
+            Ok(v) => Ok(Json(v.into())),
+            Err(e @ Error::NoBind) => Err((StatusCode::FORBIDDEN, e.to_string())),
+            Err(e @ Error::EmptyResp) => Err((StatusCode::NO_CONTENT, e.to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        }
+    }
+
+    pub async fn transaction_records(
+        Query(request::TransactionRecords {
+            device_id,
+            token,
+            uid,
+            school_code,
+            offset,
+            limit,
+        }): Query<request::TransactionRecords>,
+    ) -> ResultE<Json<response::TransactionRecords>> {
+        let handler = build_handler(&device_id, &uid, &school_code, token.as_deref())?;
+
+        match handler.transaction_records(offset, limit).await {
+            Ok(v) => Ok(Json(v.into())),
+            Err(e @ Error::EmptyResp) => Err((StatusCode::NO_CONTENT, e.to_string())),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
         }
     }

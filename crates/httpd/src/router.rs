@@ -13,20 +13,34 @@ pub fn init() -> Router {
     let v1 = Router::new()
         .nest(
             "/campus",
-            Router::new().nest(
-                "/login",
-                Router::new()
-                    .route("/security_token", get(campus::login::security_token))
-                    .route("/captcha_image", get(campus::login::captcha_image))
-                    .route(
-                        "/send_verification_code",
-                        post(campus::login::send_verification_code),
-                    )
-                    .route("/by_code", post(campus::login::login_by_code))
-                    .route("/by_password", post(campus::login::login_by_password))
-                    .route("/silent", post(campus::login::silent_login))
-                    .route("/public_key", get(campus::login::public_key)),
-            ),
+            Router::new()
+                .nest(
+                    "/login",
+                    Router::new()
+                        .route("/security_token", get(campus::login::security_token))
+                        .route("/captcha_image", get(campus::login::captcha_image))
+                        .route(
+                            "/send_verification_code",
+                            post(campus::login::send_verification_code),
+                        )
+                        .route("/by_code", post(campus::login::login_by_code))
+                        .route("/by_password", post(campus::login::login_by_password))
+                        .route("/silent", post(campus::login::silent_login))
+                        .route("/public_key", get(campus::login::public_key)),
+                )
+                .nest(
+                    "/user",
+                    Router::new()
+                        .route("/card_balance", get(campus::user::card_balance))
+                        .route(
+                            "/consumption_records",
+                            get(campus::user::consumption_records),
+                        )
+                        .route(
+                            "/transaction_records",
+                            get(campus::user::transaction_records),
+                        ),
+                ),
         )
         .nest(
             "/app",

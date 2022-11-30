@@ -150,3 +150,151 @@ pub mod login {
         }
     }
 }
+
+#[derive(Deserialize)]
+pub struct BasicInfo {
+    pub device_id: String,
+    pub token: Option<String>,
+    pub uid: String,
+    pub school_code: String,
+}
+
+pub mod user {
+    use super::*;
+
+    pub mod request {
+        use super::*;
+
+        #[derive(Deserialize)]
+        pub struct ConsumptionRecords {
+            pub device_id: String,
+            pub token: Option<String>,
+            pub uid: String,
+            pub school_code: String,
+            pub query_time: String,
+        }
+
+        #[derive(Deserialize)]
+        pub struct TransactionRecords {
+            pub device_id: String,
+            pub token: Option<String>,
+            pub uid: String,
+            pub school_code: String,
+            pub offset: u32,
+            pub limit: u32,
+        }
+    }
+
+    pub mod response {
+        use yxy::bind::campus::user;
+
+        use super::*;
+
+        #[derive(Serialize)]
+        pub struct CardBalance {
+            pub balance: String,
+        }
+
+        #[derive(Serialize)]
+        pub struct ConsumptionRecord {
+            #[serde(rename = "type")]
+            pub row_type: String,
+            pub fee_name: String,
+            pub time: String,
+            pub serial_no: String,
+            pub money: String,
+            pub deal_time: String,
+            pub address: String,
+        }
+
+        #[derive(Serialize)]
+        pub struct ConsumptionRecords(Vec<ConsumptionRecord>);
+
+        impl From<Vec<user::ConsumptionRecord>> for ConsumptionRecords {
+            fn from(v: Vec<user::ConsumptionRecord>) -> Self {
+                let collection = v
+                    .into_iter()
+                    .map(|x| ConsumptionRecord {
+                        row_type: x.row_type,
+                        fee_name: x.fee_name,
+                        time: x.time,
+                        serial_no: x.serialno,
+                        money: x.money,
+                        deal_time: x.dealtime,
+                        address: x.address,
+                    })
+                    .collect::<Vec<ConsumptionRecord>>();
+
+                Self(collection)
+            }
+        }
+
+        #[derive(Serialize)]
+        pub struct TransactionRecords {
+            pub total: i64,
+            pub trade_details: Vec<TransactionDetail>,
+            pub trade_counts: Vec<TransactionCount>,
+        }
+        #[derive(Serialize)]
+        pub struct TransactionDetail {
+            pub tran_no: String,
+            pub create_time: String,
+            pub pay_time: Option<String>,
+            pub tran_money: i64,
+            pub prod_name: String,
+            pub tran_state: i64,
+            pub tran_state_name: String,
+            pub refund_state: i64,
+            pub refund_state_name: String,
+            pub pay_name: Option<String>,
+            pub week_name: String,
+            pub application_id: String,
+            pub real_money: i64,
+        }
+
+        #[derive(Serialize)]
+        pub struct TransactionCount {
+            pub count_month: String,
+            pub total_num: i64,
+            pub total_income_amount: i64,
+            pub total_expend_amount: i64,
+        }
+
+        impl From<user::TransactionRecords> for TransactionRecords {
+            fn from(v: user::TransactionRecords) -> Self {
+                Self {
+                    total: v.total,
+                    trade_details: v
+                        .trade_details
+                        .into_iter()
+                        .map(|x| TransactionDetail {
+                            tran_no: x.tran_no,
+                            create_time: x.create_time,
+                            pay_time: x.pay_time,
+                            tran_money: x.tran_money,
+                            prod_name: x.prod_name,
+                            tran_state: x.tran_state,
+                            tran_state_name: x.tran_state_name,
+                            refund_state: x.refund_state,
+                            refund_state_name: x.refund_state_name,
+                            pay_name: x.pay_name,
+                            week_name: x.week_name,
+                            application_id: x.application_id,
+                            real_money: x.real_money,
+                        })
+                        .collect(),
+                    trade_counts: v
+                        .trade_counts
+                        .into_iter()
+                        .map(|x| TransactionCount {
+                            count_month: x.count_month,
+                            total_num: x.total_num,
+                            total_income_amount: x.total_income_amount,
+                            total_expend_amount: x.total_expend_amount,
+                        })
+                        .collect(),
+                }
+            }
+        }
+    }
+}
