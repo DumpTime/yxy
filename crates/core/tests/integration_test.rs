@@ -39,7 +39,7 @@ async fn application() {
 
         let h1 = h.clone();
         let task2 = tokio::spawn(async move {
-            let record = h1.user_recharge_records(1).await.unwrap();
+            let record = h1.user_recharge_records(1, None).await.unwrap();
             println!("{:#?}", record);
         });
 

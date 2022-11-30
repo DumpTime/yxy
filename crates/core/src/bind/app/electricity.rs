@@ -126,16 +126,33 @@ impl AppHandler {
     }
 
     /// Query my recharge records
-    pub async fn user_recharge_records(&self, page: u32) -> Result<Vec<UserRechargeRecord>> {
+    pub async fn user_recharge_records(
+        &self,
+        page: u32,
+        time: Option<&str>,
+    ) -> Result<Vec<UserRechargeRecord>> {
         let page = page.to_string();
-        let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
 
-        let mut resp = self
-            .client
-            .post(QUERY_USER_RECHARGE_RECORDS)
-            .form(&form)
-            .send()
-            .await?;
+        let mut resp = if let Some(t) = time {
+            let form = [
+                ("currentPage", page.as_str()),
+                ("subType", SUB_TYPE),
+                ("createTime", t),
+            ];
+            self.client
+                .post(QUERY_USER_RECHARGE_RECORDS)
+                .form(&form)
+                .send()
+                .await?
+        } else {
+            let form = [("currentPage", page.as_str()), ("subType", SUB_TYPE)];
+            self.client
+                .post(QUERY_USER_RECHARGE_RECORDS)
+                .form(&form)
+                .send()
+                .await?
+        };
+
         check_response(&mut resp).await?;
 
         let buf = resp.bytes().await?;

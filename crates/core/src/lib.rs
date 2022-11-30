@@ -176,6 +176,8 @@ pub mod wrapper;
 pub mod blocking;
 
 pub use bind::app::auth::UserInfo;
-pub use bind::app::electricity::{BindInfo, RoomInfo, SurplusInfo};
+pub use bind::app::electricity::{
+    BindInfo, RechargeRecord, RoomInfo, SurplusInfo, UsageRecord, UserRechargeRecord,
+};
 pub use bind::app::AppHandler;
 pub use bind::campus::login::{LoginHandler, LoginInfo, SecurityTokenInfo};

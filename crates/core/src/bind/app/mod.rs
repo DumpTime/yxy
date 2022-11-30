@@ -19,7 +19,6 @@ const APP_ID: &str = "1810181825222034";
 const SESSION_KEY: &str = "shiroJID";
 
 /// Authorized session handle
-#[derive(Debug)]
 pub struct AppHandler {
     client: Client,
 }

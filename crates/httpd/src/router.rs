@@ -47,15 +47,16 @@ pub fn init() -> Router {
             Router::new().route("/auth", get(app::auth::by_uid)).nest(
                 "/electricity",
                 Router::new()
-                    .route(
-                        "/subsidy/by_token",
-                        get(app::electricity::subsidy::by_token),
-                    )
-                    .route(
-                        "/subsidy/by_room_info",
-                        get(app::electricity::subsidy::by_room_info),
-                    )
-                    .route("/bind", get(app::electricity::bind::by_token)),
+                    .route("/subsidy/by_user", get(app::electricity::subsidy::by_user))
+                    .route("/subsidy/by_room", get(app::electricity::subsidy::by_room))
+                    .route("/bind", get(app::electricity::bind::by_user))
+                    .route("/consumption", get(app::electricity::consumption::by_room))
+                    .nest(
+                        "/recharge",
+                        Router::new()
+                            .route("/by_user", get(app::electricity::recarge::by_user))
+                            .route("/by_room", get(app::electricity::recarge::by_room)),
+                    ),
             ),
         );
 

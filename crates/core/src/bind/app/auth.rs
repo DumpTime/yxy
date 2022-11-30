@@ -191,6 +191,10 @@ impl super::AppHandler {
 
         let resp: AuthResponse = response.json().await?;
         if !resp.success {
+            if resp.status_code == 204 {
+                return Err(Error::Auth("Unauthorized".to_string()));
+            }
+
             return Err(Error::Runtime(format!(
                 "Get user info failed: {}",
                 resp.message
@@ -214,7 +218,7 @@ impl super::AppHandler {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct AuthResponse {
-    // status_code: i32,
+    status_code: i32,
     message: String,
     success: bool,
     data: Option<UserInfo>,
