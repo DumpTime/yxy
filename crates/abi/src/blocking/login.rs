@@ -130,13 +130,7 @@ pub unsafe extern "C" fn send_verification_code(
         c_string_to_str(security_token),
         captcha,
     ) {
-        Ok(v) => {
-            if v {
-                0 // Success
-            } else {
-                1 // Return 1 if user is not exist
-            }
-        }
+        Ok(v) => !v as c_int,
         Err(e) => {
             eprintln!("{e}");
             match e {
