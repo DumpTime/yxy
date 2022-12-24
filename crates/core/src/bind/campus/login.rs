@@ -395,7 +395,7 @@ pub fn app_security_token(security_token: &str, device_id: &str) -> Result<Strin
 
     cipher.decrypt_blocks(&mut blocks);
 
-    let t: Vec<u8> = blocks.iter().flatten().map(|&x| x as u8).collect();
+    let t: Vec<u8> = blocks.iter().flatten().copied().collect();
 
     let last = *t.last().unwrap();
     let index: usize = t.len() - usize::from(last);
@@ -434,7 +434,7 @@ pub fn app_security_token(security_token: &str, device_id: &str) -> Result<Strin
 
     cipher.encrypt_blocks(&mut blocks_2);
 
-    let encrypted_text: Vec<u8> = blocks_2.iter().flatten().map(|&x| x as u8).collect();
+    let encrypted_text: Vec<u8> = blocks_2.iter().flatten().copied().collect();
 
     let stage_4 = base64::encode(encrypted_text);
 
