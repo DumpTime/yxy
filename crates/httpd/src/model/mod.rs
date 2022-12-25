@@ -5,16 +5,33 @@ pub mod app;
 pub mod campus;
 
 #[derive(Serialize)]
+pub struct SuccessResponse<T> {
+    pub code: u16,
+    pub msg: String,
+    pub data: T,
+}
+
+impl<T> SuccessResponse<T> {
+    pub fn new(data: T) -> Self {
+        Self {
+            code: 0,
+            msg: "success".to_string(),
+            data,
+        }
+    }
+}
+
+#[derive(Serialize)]
 pub struct ErrorResponse {
-    pub code: i16,
+    pub code: u16,
     pub msg: String,
 }
 
-impl From<Error> for ErrorResponse {
-    fn from(e: Error) -> Self {
+impl From<(u16, Error)> for ErrorResponse {
+    fn from(e: (u16, Error)) -> Self {
         Self {
-            code: -1,
-            msg: e.to_string(),
+            code: e.0,
+            msg: e.1.to_string(),
         }
     }
 }

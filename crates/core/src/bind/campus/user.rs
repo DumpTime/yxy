@@ -104,7 +104,7 @@ impl CampusHandler {
         #[derive(Deserialize)]
         #[serde(rename_all = "camelCase")]
         struct Response {
-            pub status_code: i64,
+            pub status_code: serde_json::Value,
             pub message: String,
             pub data: Option<TransactionRecords>,
         }
@@ -116,10 +116,19 @@ impl CampusHandler {
             Err(e) => return Err(Error::Deserialize(e, buf)),
         };
 
-        match resp.status_code {
-            0 => {}
-            203 => return Err(Error::NoBind),
-            204 => return Err(Error::Auth("Unauthorized".to_string())),
+        match resp.status_code.as_i64() {
+            Some(0) => {}
+            Some(203) => return Err(Error::NoBind),
+            Some(204) => return Err(Error::Auth("Unauthorized".to_string())),
+            None => match resp.status_code.as_str() {
+                Some("204") => return Err(Error::Auth("Unauthorized".to_string())),
+                _ => {
+                    return Err(Error::Runtime(format!(
+                        "Fail to query transaction records: ({}); {}",
+                        resp.status_code, resp.message,
+                    )))
+                }
+            },
             _ => {
                 return Err(Error::Runtime(format!(
                     "Fail to query transaction records: ({}); {}",
