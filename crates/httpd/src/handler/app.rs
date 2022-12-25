@@ -40,7 +40,7 @@ pub mod electricity {
         ) -> ResultE<Json<Response>> {
             match query_ele(&token).await {
                 Ok(v) => Ok(Json(Response::from(v))),
-                Err(e @ Error::NoBind) => Err((StatusCode::NOT_FOUND, Json(e.into()))),
+                Err(e @ Error::NoBind) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
                 Err(e @ Error::Auth(_)) => Err((StatusCode::UNAUTHORIZED, Json(e.into()))),
                 Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
             }
@@ -65,7 +65,7 @@ pub mod electricity {
         ) -> ResultE<Json<Response>> {
             match query_ele_bind(&token).await {
                 Ok(v) => Ok(Json(Response::from(v))),
-                Err(e @ Error::NoBind) => Err((StatusCode::NOT_FOUND, Json(e.into()))),
+                Err(e @ Error::NoBind) => Err((StatusCode::FORBIDDEN, Json(e.into()))),
                 Err(e @ Error::Auth(_)) => Err((StatusCode::UNAUTHORIZED, Json(e.into()))),
                 Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.into()))),
             }
