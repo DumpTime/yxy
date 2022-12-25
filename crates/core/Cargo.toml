@@ -1,6 +1,6 @@
 [package]
 name = "yxy"
-version = "0.7.0-alpha"
+version = "0.7.0"
 edition = "2021"
 license = "Apache-2.0"
 authors = ["DumpTime"]
