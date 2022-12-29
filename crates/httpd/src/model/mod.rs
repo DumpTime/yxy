@@ -25,7 +25,7 @@ impl<T> SuccessResponse<T> {
 pub struct ErrorResponse {
     pub code: u16,
     pub msg: String,
-    pub data: Option<()>,
+    pub data: (),
 }
 
 impl From<(u16, Error)> for ErrorResponse {
@@ -33,7 +33,7 @@ impl From<(u16, Error)> for ErrorResponse {
         Self {
             code: e.0,
             msg: e.1.to_string(),
-            data: None,
+            data: (),
         }
     }
 }
