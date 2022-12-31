@@ -32,7 +32,8 @@ type Result<T> = std::result::Result<T, Error>;
 pub fn build_default_client() -> Result<Client> {
     let builder = Client::builder();
     let result = builder
-        .connect_timeout(Duration::new(5, 0))
+        .connect_timeout(Duration::new(10, 0))
+        .timeout(Duration::new(30, 0))
         .user_agent(USER_AGENT)
         .build()?;
 
@@ -45,7 +46,8 @@ pub fn build_default_client() -> Result<Client> {
 pub fn build_non_redirect_client() -> Result<Client> {
     let builder = Client::builder();
     let result = builder
-        .connect_timeout(Duration::new(5, 0))
+        .connect_timeout(Duration::new(10, 0))
+        .timeout(Duration::new(30, 0))
         .user_agent(USER_AGENT)
         .redirect(reqwest::redirect::Policy::none())
         .build()?;
