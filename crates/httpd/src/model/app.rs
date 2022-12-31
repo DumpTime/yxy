@@ -219,7 +219,7 @@ pub mod electricity {
             pub building_code: String,
             pub floor_code: String,
             pub room_code: String,
-            pub md_type: Option<String>,
+            pub md_type: String,
         }
 
         #[derive(Serialize)]
@@ -233,7 +233,7 @@ pub mod electricity {
         }
 
         impl Request {
-            pub fn split(self) -> (String, Option<String>, RoomInfo) {
+            pub fn split(self) -> (String, String, RoomInfo) {
                 (
                     self.token,
                     self.md_type,
@@ -272,8 +272,8 @@ pub mod electricity {
         #[derive(Deserialize)]
         pub struct ByUserRequest {
             pub token: String,
-            /// Transaction creation time
             pub page: u32,
+            /// Transaction creation time
             pub time: Option<String>,
         }
 

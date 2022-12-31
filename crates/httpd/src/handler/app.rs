@@ -81,7 +81,7 @@ pub mod electricity {
             let (token, md_type, room_info) = v.split();
             let handler = build_handler(&token)?;
 
-            match handler.usage_records(&room_info, md_type.as_deref()).await {
+            match handler.usage_records(&room_info, &md_type).await {
                 Ok(v) => success_result(Response::from(v)),
                 Err(e @ Error::Auth(_)) => error_result(StatusCode::UNAUTHORIZED.as_u16(), e),
                 Err(e) => error_result(StatusCode::INTERNAL_SERVER_ERROR.as_u16(), e),
