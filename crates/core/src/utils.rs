@@ -1,8 +1,8 @@
 //! Some useful util functions
 
-use base64;
+use base64::{self, engine::general_purpose, Engine};
 use rand::Rng;
-use rsa::{pkcs8::DecodePublicKey, PaddingScheme, PublicKey, RsaPublicKey};
+use rsa::{pkcs8::DecodePublicKey, PaddingScheme, Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Write;
 
 use crate::error::Error;
@@ -66,16 +66,15 @@ pub fn md5<T: Into<String>>(input: T) -> String {
 ///
 /// **Return** `Base64` encoded string
 pub fn encrypt_password(pwd: &str, pub_base64: &str) -> Result<String, Error> {
-    let pub_der = base64::decode(pub_base64)?;
+    let pub_der = general_purpose::STANDARD.decode(pub_base64)?;
     let public_key = RsaPublicKey::from_public_key_der(&pub_der)?;
 
     let mut rng = rand::thread_rng(); // Random generator
     let pass_md5 = md5(pwd);
 
-    let padding = PaddingScheme::new_pkcs1v15_encrypt();
-    let encrypted = public_key.encrypt(&mut rng, padding, pass_md5.as_bytes())?;
+    let encrypted = Pkcs1v15Encrypt.encrypt(&mut rng, &public_key, pass_md5.as_bytes())?;
 
-    let result = base64::encode(encrypted);
+    let result = general_purpose::STANDARD.encode(encrypted);
     Ok(result)
 }
 
@@ -109,6 +108,8 @@ pub fn gen_random_fake_md5() -> String {
 
 #[cfg(test)]
 mod test {
+    use base64::{engine::general_purpose, Engine};
+    use rand::rngs::ThreadRng;
     use rsa::{pkcs1::DecodeRsaPrivateKey, RsaPrivateKey};
 
     use super::*;
@@ -158,8 +159,11 @@ JKmCkkbvlVgN/qei3e/jVFpxR6D3fzshnv5QNB4+BJ/rjRWbbxCJ0djzPxsLS1dJ\
 
         let private = RsaPrivateKey::from_pkcs1_pem(private_key).unwrap();
 
-        let padding = PaddingScheme::new_pkcs1v15_encrypt();
-        let dec_data = private.decrypt(padding, &base64::decode(cipher_text)?)?;
+        let dec_data = Pkcs1v15Encrypt.decrypt(
+            None::<&mut ThreadRng>,
+            &private,
+            &general_purpose::STANDARD.decode(cipher_text)?,
+        )?;
 
         let dec_text = String::from_utf8(dec_data).unwrap();
 

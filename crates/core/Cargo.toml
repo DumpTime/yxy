@@ -14,13 +14,13 @@ publish = false
 
 [dependencies]
 aes = "0.8"
-base64 = "0.20"
+base64 = "0.21"
 bytes = "1.2"
 chrono = "0.4"
 const_format = "0.2"
 md5 = "0.7"
 rand = "0.8"
-rsa = "0.7"
+rsa = "0.8"
 serde = "1.0"
 serde_json = "1.0"
 thiserror = "1.0"

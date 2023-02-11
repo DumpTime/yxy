@@ -2,6 +2,8 @@
 
 use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::Aes128;
+use base64::engine::general_purpose;
+use base64::Engine;
 use reqwest::Client;
 use serde::Deserialize;
 
@@ -386,7 +388,7 @@ pub fn app_security_token(security_token: &str, device_id: &str) -> Result<Strin
     let key = GenericArray::clone_from_slice(security_token[..16].as_bytes());
     let cipher = Aes128::new(&key);
 
-    let text = base64::decode(security_token[32..].as_bytes())?;
+    let text = general_purpose::STANDARD.decode(security_token[32..].as_bytes())?;
 
     let mut blocks = Vec::new();
     (0..text.len()).step_by(16).for_each(|x| {
@@ -436,7 +438,7 @@ pub fn app_security_token(security_token: &str, device_id: &str) -> Result<Strin
 
     let encrypted_text: Vec<u8> = blocks_2.iter().flatten().copied().collect();
 
-    let stage_4 = base64::encode(encrypted_text);
+    let stage_4 = general_purpose::STANDARD.encode(encrypted_text);
 
     Ok(stage_4)
 }
