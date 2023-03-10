@@ -144,10 +144,8 @@ jobs:
           mv yxy.h dist/yxy.h
 
       - name: Publish Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v1 
         if: startsWith(github.ref, 'refs/tags/v')
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
           files: |
             dist/*
