@@ -2,7 +2,7 @@
 
 use base64::{self, engine::general_purpose, Engine};
 use rand::Rng;
-use rsa::{pkcs8::DecodePublicKey, PaddingScheme, Pkcs1v15Encrypt, RsaPublicKey};
+use rsa::{pkcs8::DecodePublicKey, traits::PaddingScheme, Pkcs1v15Encrypt, RsaPublicKey};
 use std::io::Write;
 
 use crate::error::Error;
