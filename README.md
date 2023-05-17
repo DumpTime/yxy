@@ -9,18 +9,18 @@
 [build badge]: https://github.com/DumpTime/yxy/actions/workflows/build.yml/badge.svg
 [build]: https://github.com/DumpTime/yxy/actions/workflows/build.yml
 
-YXY(yiSchool) platform API bindings, written in rust.
+YXY(yiSchool) platform HTTP API bindings, written in Rust.
 
 ---
 
 ## Features
 
-- [X] Query electricity balance, usages/recharge records.
-- [X] Simulate APP login.
-- [X] Subscribe some balance status. ([`yxy-cli`][yxy-cli])
+- [X] Query electricity surplus, consumption and recharge records.
+- [X] APP login stage simulation.
+- [X] Subscribe some states. ([CLI][yxy-cli])
   - WeChat(ServerChan)
-- [X] Create electricity recharge transaction.
-- [ ] And more...(Waiting for your contribution)
+- [X] Create electricity recharge transactions.
+- [ ] More... (Waiting for your contribution)
 
 ## Development
 
@@ -30,32 +30,27 @@ YXY(yiSchool) platform API bindings, written in rust.
    ```bash
    git clone https://github.com/DumpTime/yxy.git
    ```
-3. Build & test
-
+3. Build
+   
    ```bash
-   cargo test
+   cargo build
    ```
 4. Docs
    
    ```bash
    cargo doc --open
    ```
-5. Check with `cargo-clippy`
 
-   ```bash
-   cargo clippy
-   ```
+## Command Line Interface
 
-## CLI
-
-You can use a simple tool: [`yxy-cli`][yxy-cli]
+A simple tool: [`yxy-cli`][yxy-cli]
 
 ## For other programming languages
 
-Also you can try [`yxy-abi`][yxy-abi] or [`yxy-httpd`][yxy-httpd]
+See more: [`yxy-abi`][yxy-abi] or [`yxy-httpd`][yxy-httpd]
 
 # Disclaimer
-**A pure non-profit project, only for learning usage. Do not use for any commercial purposes.**
+Completely FREE software for learning only.
 **Any inappropriate use is at your own risk.**
 
 [yxy-cli]: https://github.com/DumpTime/yxy/tree/dev/crates/cli
