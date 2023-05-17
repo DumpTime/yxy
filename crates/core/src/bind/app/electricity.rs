@@ -472,7 +472,6 @@ pub struct UsageRecord {
 pub struct RechargeRecord {
     pub roomdm: String,
     pub datetime: String,
-    pub buytpe: String,
     pub buyusingtpe: String,
     pub money: String,
     pub issend: String,

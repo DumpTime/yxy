@@ -405,7 +405,6 @@ pub mod electricity {
         pub struct RoomRecord {
             pub room_dm: String,
             pub datetime: String,
-            pub buy_type: String,
             pub using_type: String,
             pub money: String,
             pub is_send: String,
@@ -416,7 +415,6 @@ pub mod electricity {
                 Self {
                     room_dm: v.roomdm,
                     datetime: v.datetime,
-                    buy_type: v.buytpe,
                     using_type: v.buyusingtpe,
                     money: v.money,
                     is_send: v.issend,
