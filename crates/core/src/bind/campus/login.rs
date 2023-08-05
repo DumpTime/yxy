@@ -537,7 +537,7 @@ pub struct LoginInfo {
     pub school_nature: Option<i32>,
     pub platform: String,
     /// Unknown usage
-    pub uu_token: String,
+    pub uu_token: Option<String>,
     pub qrcode_private_key: String,
     pub bind_card_rate: Option<i32>,
     pub points: Option<i32>,
