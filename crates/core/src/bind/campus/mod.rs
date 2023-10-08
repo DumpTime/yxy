@@ -100,8 +100,8 @@ fn check_auth_status<D, R>(resp: &CommonResponse<D, R>) -> Result<bool> {
                 if let Some(ref code) = resp.biz_code {
                     let code = code.parse::<i64>();
                     match code {
-                        Ok(v) if v == 10010 => return Err(Error::AuthUserNotFound),
-                        Ok(v) if v == 10011 => return Err(Error::AuthDeviceChanged),
+                        Ok(10010) => return Err(Error::AuthUserNotFound),
+                        Ok(10011) => return Err(Error::AuthDeviceChanged),
                         // Ignore
                         _ => {}
                     }
