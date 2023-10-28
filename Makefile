@@ -1,16 +1,16 @@
 CC=cc
 APPLE_TARGETS=aarch64-apple-darwin aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin x86_64-apple-ios
-HEADER_FILE=./crates/abi/include/yxy.h
+HEADER_FILE=./crates/ffi/include/yxy.h
 
-.PHONY: core abi cli all apple clean-xcf xcf clean cbindgen ctest httpd server
+.PHONY: core ffi cli all apple clean-xcf xcf clean cbindgen ctest httpd server
 
 core:
 	@echo "Building core lib..."
 	@cargo build -p yxy
 
-abi:
+ffi:
 	@echo "Building cdylib & staticlib..."
-	@cargo build -p yxy-abi --all-features
+	@cargo build -p yxy-ffi --all-features
 
 cli:
 	@echo "Building CLI..."
@@ -56,12 +56,12 @@ clean-xcf:
 apple:
 	@echo "Building Apple targets..."
 	@for target in $(APPLE_TARGETS); do \
-		cargo build -p yxy-abi --all-features --target $$target --release; \
+		cargo build -p yxy-ffi --all-features --target $$target --release; \
 	done
 
 cbindgen:
 	@echo "Generating C bindings..."
-	@rustup run nightly cbindgen --config ./crates/abi/cbindgen.toml --crate yxy-abi --output $(HEADER_FILE)
+	@rustup run nightly cbindgen --config ./crates/ffi/cbindgen.toml --crate yxy-ffi --output $(HEADER_FILE)
 	@echo "Generate successfully out to: $(HEADER_FILE)"
 
 xcf: apple cbindgen clean-xcf
@@ -69,26 +69,26 @@ xcf: apple cbindgen clean-xcf
 	
 	@mkdir -p target/universal/release
 	@lipo -create \
-			target/x86_64-apple-darwin/release/libyxy_abi.a \
-			target/aarch64-apple-darwin/release/libyxy_abi.a \
+			target/x86_64-apple-darwin/release/libyxy_ffi.a \
+			target/aarch64-apple-darwin/release/libyxy_ffi.a \
 		-output target/universal/release/libyxy_macos.a
 
 	@lipo -create \
-			target/aarch64-apple-ios-sim/release/libyxy_abi.a \
-			target/x86_64-apple-ios/release/libyxy_abi.a \
+			target/aarch64-apple-ios-sim/release/libyxy_ffi.a \
+			target/x86_64-apple-ios/release/libyxy_ffi.a \
 		-output target/universal/release/libyxy_iossim.a
 	
 
 	@xcodebuild -create-xcframework \
-		-library ./target/universal/release/libyxy_macos.a -headers ./crates/abi/include/ \
-		-library ./target/universal/release/libyxy_iossim.a -headers ./crates/abi/include/ \
-		-library ./target/aarch64-apple-ios/release/libyxy_abi.a -headers ./crates/abi/include/ \
+		-library ./target/universal/release/libyxy_macos.a -headers ./crates/ffi/include/ \
+		-library ./target/universal/release/libyxy_iossim.a -headers ./crates/ffi/include/ \
+		-library ./target/aarch64-apple-ios/release/libyxy_ffi.a -headers ./crates/ffi/include/ \
 		-output target/universal/yxy-static.xcframework
 
-ctest: abi
+ctest: ffi
 	@echo "Building C test..."
 	@mkdir -p ./target/tests
-	@rustup run nightly cbindgen --crate yxy-abi -c ./crates/abi/cbindgen.toml --output ./tests/yxy.h 
-	@$(CC) -l yxy_abi -L ./target/debug -o ./target/debug/main ./tests/main.c
+	@rustup run nightly cbindgen --crate yxy-ffi -c ./crates/ffi/cbindgen.toml --output ./tests/yxy.h 
+	@$(CC) -l yxy_ffi -L ./target/debug -o ./target/debug/main ./tests/main.c
 	@echo "Runing tests..."
 	@./target/debug/main

@@ -9,7 +9,7 @@ use yxy::blocking::LoginHandler;
 extern_c_destructor!(LoginHandler);
 
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn new_login_handler() -> *mut LoginHandler {
     let handler = match LoginHandler::new() {
@@ -22,7 +22,7 @@ pub unsafe extern "C" fn new_login_handler() -> *mut LoginHandler {
 /// Build [`LoginHandler`] by provided `device_id`
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn build_login_handler(device_id: *mut c_char) -> *mut LoginHandler {
     check_null_return_null!(device_id);
@@ -51,7 +51,7 @@ extern_c_destructor!(SecurityToken);
 /// Get security token
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn get_security_token(handler: *const LoginHandler) -> *mut SecurityToken {
     check_null_return_null!(handler);
@@ -76,7 +76,7 @@ pub unsafe extern "C" fn get_security_token(handler: *const LoginHandler) -> *mu
 /// Get captcha image
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn get_captcha_image(
     handler: *const LoginHandler,
@@ -109,7 +109,7 @@ pub unsafe extern "C" fn get_captcha_image(
 /// - `c_int`: `0` on success, `1` on user is not exist(registered), otherwise error code
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn send_verification_code(
     handler: *const LoginHandler,
@@ -160,7 +160,7 @@ extern_c_destructor!(LoginInfo);
 /// Do login by SMS verification code
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn do_login_by_code(
     handler: *const LoginHandler,

@@ -47,12 +47,12 @@ A simple tool: [`yxy-cli`][yxy-cli]
 
 ## For other programming languages
 
-See more: [`yxy-abi`][yxy-abi] or [`yxy-httpd`][yxy-httpd]
+See more: [`yxy-ffi`][yxy-ffi] or [`yxy-httpd`][yxy-httpd]
 
 # Disclaimer
 Completely FREE software for learning only.
 **Any inappropriate use is at your own risk.**
 
 [yxy-cli]: https://github.com/DumpTime/yxy/tree/dev/crates/cli
-[yxy-abi]: https://github.com/DumpTime/yxy/tree/dev/crates/abi
+[yxy-ffi]: https://github.com/DumpTime/yxy/tree/dev/crates/ffi
 [yxy-httpd]: https://github.com/DumpTime/yxy/tree/dev/crates/httpd

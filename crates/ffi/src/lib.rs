@@ -1,4 +1,4 @@
-//! # yxy-abi
+//! # yxy-ffi
 //!
 //! C-style yxy bindings
 //!

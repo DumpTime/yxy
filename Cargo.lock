@@ -2144,14 +2144,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "yxy-abi"
-version = "0.2.0-alpha"
-dependencies = [
- "ffi-destruct",
- "yxy",
-]
-
-[[package]]
 name = "yxy-cli"
 version = "0.3.0-alpha"
 dependencies = [
@@ -2161,6 +2153,14 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "tokio",
+ "yxy",
+]
+
+[[package]]
+name = "yxy-ffi"
+version = "0.2.0-alpha"
+dependencies = [
+ "ffi-destruct",
  "yxy",
 ]
 

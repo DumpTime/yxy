@@ -1,4 +1,4 @@
-# YXY C ABI
+# YXY C FFI
 
 C-style yxy bindings for other language calls.
 
@@ -21,7 +21,7 @@ See [yxy-httpd].
 ### Manual
 In the root of source tree:
 ```bash
-rustup run nightly cbindgen --crate yxy-abi -c ./crates/abi/cbindgen.toml -o ./crates/abi/include/yxy.h
+rustup run nightly cbindgen --crate yxy-ffi -c ./crates/ffi/cbindgen.toml -o ./crates/ffi/include/yxy.h
 ```
 
 ## Safety

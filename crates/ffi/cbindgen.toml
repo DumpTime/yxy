@@ -127,7 +127,7 @@ extra_bindings = []
 
 
 [parse.expand]
-crates = ["yxy-abi"]
+crates = ["yxy-ffi"]
 all_features = false
 default_features = true
 features = ["blocking"]

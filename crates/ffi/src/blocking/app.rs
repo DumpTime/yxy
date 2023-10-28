@@ -44,7 +44,7 @@ impl From<&RoomInfo> for yxy::blocking::RoomInfo {
 }
 
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn query_ele_bind(handler: *const AppHandler) -> *mut RoomInfo {
     check_null_return_null!(handler);
@@ -116,7 +116,7 @@ impl TryFrom<yxy::blocking::ElectricityInfo> for ElectricityInfo {
 }
 
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn query_ele(handler: *const AppHandler) -> *mut ElectricityInfo {
     check_null_return_null!(handler);
@@ -145,7 +145,7 @@ pub unsafe extern "C" fn query_ele(handler: *const AppHandler) -> *mut Electrici
 }
 
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn query_ele_by_room_info(
     handler: *const AppHandler,

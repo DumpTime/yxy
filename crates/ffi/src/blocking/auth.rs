@@ -15,7 +15,7 @@ extern_c_destructor!(AppHandler);
 /// - `*mut c_char`: token c-string, UTF-8. Return nullptr on error.
 ///
 /// # Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn app_auth(uid: *const c_char) -> *mut c_char {
     check_null_return_null!(uid);
@@ -33,7 +33,7 @@ pub unsafe extern "C" fn app_auth(uid: *const c_char) -> *mut c_char {
 /// Build [`AppHandler`] by exist session token
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn build_app_handler(token: *const c_char) -> *mut AppHandler {
     check_null_return_null!(token);
@@ -51,7 +51,7 @@ pub unsafe extern "C" fn build_app_handler(token: *const c_char) -> *mut AppHand
 /// Get [`AppHandler`] by UID with default query
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 #[no_mangle]
 pub unsafe extern "C" fn get_app_handler(uid: *const c_char) -> *mut AppHandler {
     check_null_return_null!(uid);

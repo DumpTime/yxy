@@ -13,7 +13,7 @@ pub mod login;
 /// Deallocate c-style string to avoid memory leak.
 ///
 /// ## Safety
-/// C-ABI usage only
+/// C-FFI usage only
 ///
 #[no_mangle]
 pub unsafe extern "C" fn destruct_c_string(ptr: *mut c_char) {

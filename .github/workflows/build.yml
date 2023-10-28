@@ -97,15 +97,15 @@ jobs:
       - name: Create fat library
         run: |
           mkdir universal
-          lipo -create ./artifacts/x86_64-apple-darwin/libyxy_abi.a ./artifacts/aarch64-apple-darwin/libyxy_abi.a -output ./universal/libyxy_macos.a
-          lipo -create ./artifacts/x86_64-apple-ios/libyxy_abi.a ./artifacts/aarch64-apple-ios-sim/libyxy_abi.a -output ./universal/libyxy_iossim.a
+          lipo -create ./artifacts/x86_64-apple-darwin/libyxy_ffi.a ./artifacts/aarch64-apple-darwin/libyxy_ffi.a -output ./universal/libyxy_macos.a
+          lipo -create ./artifacts/x86_64-apple-ios/libyxy_ffi.a ./artifacts/aarch64-apple-ios-sim/libyxy_ffi.a -output ./universal/libyxy_iossim.a
 
       - name: Create XCFramework & Bundle
         run: |
-          xcodebuild -create-xcframework -library ./universal/libyxy_macos.a -headers ./crates/abi/include/ -library ./universal/libyxy_iossim.a -headers ./crates/abi/include/ -library ./artifacts/aarch64-apple-ios/libyxy_abi.a -headers ./crates/abi/include/ -output yxy.xcframework
+          xcodebuild -create-xcframework -library ./universal/libyxy_macos.a -headers ./crates/ffi/include/ -library ./universal/libyxy_iossim.a -headers ./crates/ffi/include/ -library ./artifacts/aarch64-apple-ios/libyxy_ffi.a -headers ./crates/ffi/include/ -output yxy.xcframework
           zip -r xcframework-universal.zip yxy.xcframework
           openssl dgst -sha256 xcframework-universal.zip > xcframework-universal.zip.checksum
-          cp ./crates/abi/include/yxy.h .
+          cp ./crates/ffi/include/yxy.h .
 
       - name: Package core crate
         run: |
@@ -124,20 +124,20 @@ jobs:
           mkdir dist
           mv artifacts/x86_64-apple-darwin/yxy-cli dist/yxy-cli-x86_64-apple-darwin
           mv artifacts/x86_64-apple-darwin/yxy-httpd dist/yxy-httpd-x86_64-apple-darwin
-          mv artifacts/x86_64-apple-darwin/libyxy_abi.dylib dist/libyxy-x86_64-apple-darwin.dylib
-          mv artifacts/x86_64-apple-darwin/libyxy_abi.a dist/libyxy-x86_64-apple-darwin.a
+          mv artifacts/x86_64-apple-darwin/libyxy_ffi.dylib dist/libyxy-x86_64-apple-darwin.dylib
+          mv artifacts/x86_64-apple-darwin/libyxy_ffi.a dist/libyxy-x86_64-apple-darwin.a
           mv artifacts/x86_64-pc-windows-msvc/yxy-cli.exe dist/yxy-cli-x86_64-pc-windows-msvc.exe
           mv artifacts/x86_64-pc-windows-msvc/yxy-httpd.exe dist/yxy-httpd-x86_64-pc-windows-msvc.exe
-          mv artifacts/x86_64-pc-windows-msvc/yxy_abi.dll dist/yxy-x86_64-pc-windows-msvc.dll
-          mv artifacts/x86_64-pc-windows-msvc/yxy_abi.lib dist/yxy-x86_64-pc-windows-msvc.lib
+          mv artifacts/x86_64-pc-windows-msvc/yxy_ffi.dll dist/yxy-x86_64-pc-windows-msvc.dll
+          mv artifacts/x86_64-pc-windows-msvc/yxy_ffi.lib dist/yxy-x86_64-pc-windows-msvc.lib
           mv artifacts/x86_64-unknown-linux-gnu/yxy-cli dist/yxy-cli-x86_64-unknown-linux-gnu
           mv artifacts/x86_64-unknown-linux-gnu/yxy-httpd dist/yxy-httpd-x86_64-unknown-linux-gnu
-          mv artifacts/x86_64-unknown-linux-gnu/libyxy_abi.so dist/libyxy-x86_64-unknown-linux-gnu.so
-          mv artifacts/x86_64-unknown-linux-gnu/libyxy_abi.a dist/libyxy-x86_64-unknown-linux-gnu.a
+          mv artifacts/x86_64-unknown-linux-gnu/libyxy_ffi.so dist/libyxy-x86_64-unknown-linux-gnu.so
+          mv artifacts/x86_64-unknown-linux-gnu/libyxy_ffi.a dist/libyxy-x86_64-unknown-linux-gnu.a
           mv artifacts/aarch64-apple-darwin/yxy-cli dist/yxy-cli-aarch64-apple-darwin
           mv artifacts/aarch64-apple-darwin/yxy-httpd dist/yxy-httpd-aarch64-apple-darwin
-          mv artifacts/aarch64-apple-darwin/libyxy_abi.dylib dist/libyxy-aarch64-apple-darwin.dylib
-          mv artifacts/aarch64-apple-darwin/libyxy_abi.a dist/libyxy-aarch64-apple-darwin.a
+          mv artifacts/aarch64-apple-darwin/libyxy_ffi.dylib dist/libyxy-aarch64-apple-darwin.dylib
+          mv artifacts/aarch64-apple-darwin/libyxy_ffi.a dist/libyxy-aarch64-apple-darwin.a
           mv xcframework-universal.zip dist/xcframework-universal.zip
           mv xcframework-universal.zip.checksum dist/xcframework-universal.zip.checksum
           mv target/package/yxy-*.crate dist/
