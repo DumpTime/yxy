@@ -77,7 +77,7 @@ pub fn init() -> Router {
 
 async fn access_log(
     req: Request<Body>,
-    next: Next<Body>,
+    next: Next,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let method = req.method().clone();
     let uri = req.uri().clone();

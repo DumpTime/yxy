@@ -15,8 +15,8 @@ async fn main() {
     let app = router::init();
 
     tracing::info!("Listening on: {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
 }
