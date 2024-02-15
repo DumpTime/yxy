@@ -1,0 +1,14 @@
+[package]
+name = "yxy-grpc"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+yxy.workspace = true
+tokio.workspace = true
+tonic = "0.11"
+prost = "0.12"
+
+[build-dependencies]
+tonic-build = "0.11"
