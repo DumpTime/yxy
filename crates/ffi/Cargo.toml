@@ -12,11 +12,8 @@ publish = false
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
+yxy.workspace = true
 ffi-destruct = "0.1"
-
-[dependencies.yxy]
-path = "../core"
-version = "0.7.0"
 
 [features]
 # default = ["blocking"]
