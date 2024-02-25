@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/ffi",
     "crates/cli",
     "crates/core",
+    "crates/ffi",
     "crates/httpd",
 ]
 default-members = ["crates/core"]
