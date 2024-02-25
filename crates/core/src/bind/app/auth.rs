@@ -24,7 +24,7 @@ fn extract_code(url: &str) -> Option<String> {
             let query = url.query_pairs();
 
             for (key, value) in query {
-                if key == "code" {
+                if key == "ymCode" {
                     return Some(value.to_string());
                 }
             }
@@ -90,6 +90,7 @@ pub async fn get_oauth_code(client: &Client, id: &str) -> Result<String> {
         Some(header) => header,
         None => return Err(Error::EmptyResp),
     };
+    println!("Location: {:?}", header_location);
 
     match extract_code(header_location.to_str().unwrap()) {
         Some(t) => Ok(t),
