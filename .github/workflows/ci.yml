@@ -71,21 +71,20 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Cargo Clippy
-        run: cargo clippy --all-features --all --target x86_64-unknown-linux-gnu -- -D warnings
+        run: cargo clippy --all-features --all --target x86_64-unknown-linux-musl -- -D warnings
 
       - name: Run tests
-        run: cargo test -v --all-features --all --target x86_64-unknown-linux-gnu
+        run: cargo test -v --all-features --all --target x86_64-unknown-linux-musl
 
       - name: Build
-        run: cargo build -v --all --target x86_64-unknown-linux-gnu
+        run: cargo build -v --all --target x86_64-unknown-linux-musl
 
       - name: List target
-        run: ls -l target/x86_64-unknown-linux-gnu/debug
+        run: ls -l target/x86_64-unknown-linux-musl/debug
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: x86_64-unknown-linux-gnu 
+          name: x86_64-unknown-linux-musl
           path: |
-            target/x86_64-unknown-linux-gnu/debug/*yxy*
-    
+            target/x86_64-unknown-linux-musl/debug/*yxy*
