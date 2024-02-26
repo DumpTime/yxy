@@ -41,7 +41,7 @@ jobs:
         run: cargo test -v --all-features
 
       - name: Build
-        run: cargo build -v
+        run: cargo build -v --all
 
       - name: List target
         run: ls -l target/debug

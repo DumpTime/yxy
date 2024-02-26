@@ -32,7 +32,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Build
-        run: cargo build -vr --all-features
+        run: cargo build -vr --all-features --all
 
       - name: List target
         run: ls -l target/release
@@ -69,7 +69,7 @@ jobs:
           shared-key: ${{ matrix.target }}
 
       - name: Build
-        run: cargo build -r --target ${{ matrix.target }} --all-features
+        run: cargo build -r --target ${{ matrix.target }} --all-features --all
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
