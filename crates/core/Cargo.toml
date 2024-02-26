@@ -33,12 +33,12 @@ tokio.workspace = true
 once_cell = "1.16"
 serde_yaml.workspace = true
 
-[target.'cfg(not(target = "x86_64-unknown-linux-musl"))'.dependencies.reqwest]
+[target.'cfg(not(target_env = "musl"))'.dependencies.reqwest]
 workspace = true
 features = ["cookies"]
 default-features = true
 
-[target.x86_64-unknown-linux-musl.dependencies.reqwest]
+[target.'cfg(target_env = "musl")'.dependencies.reqwest]
 workspace = true
 features = ["cookies", "rustls-tls"]
 
