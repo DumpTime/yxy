@@ -15,8 +15,15 @@ publish = false
 [dependencies]
 yxy.workspace = true
 clap.workspace = true
-reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_yaml.workspace = true
 tokio.workspace = true
+
+[dependencies.reqwest]
+workspace = true
+default-features = true
+
+[target.x86_64-unknown-linux-musl.dependencies.reqwest]
+workspace = true
+features = ["rustls-tls"]

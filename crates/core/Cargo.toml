@@ -35,7 +35,12 @@ serde_yaml.workspace = true
 
 [dependencies.reqwest]
 workspace = true
-features = ["json", "cookies"]
+features = ["cookies"]
+default-features = true
+
+[target.x86_64-unknown-linux-musl.dependencies.reqwest]
+workspace = true
+features = ["cookies", "rustls-tls"]
 
 [dependencies.uuid]
 version = "1.2"

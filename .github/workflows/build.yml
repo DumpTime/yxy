@@ -56,7 +56,7 @@ jobs:
           - "x86_64-apple-ios"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install target
         run: rustup update && rustup target add ${{ matrix.target }}
@@ -72,26 +72,52 @@ jobs:
         run: cargo build -r --target ${{ matrix.target }} --all-features --all
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
           path: |
             target/${{ matrix.target }}/release/*yxy*
+  
+  musl: 
+    runs-on: "ubuntu-latest"
 
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install musl target
+        run: rustup target add x86_64-unknown-linux-musl
+
+      - name: List support target platform
+        run: rustup target list
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "x86_64-unknown-linux-musl"
+
+      - name: Build
+        run: cargo build -r --target x86_64-unknown-linux-musl --all-features --all
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "x86_64-unknown-linux-musl"
+          path: |
+            target/x86_64-unknown-linux-musl/release/*yxy*
+            
   distribute:
-    needs: [basic, apple]
+    needs: [basic, apple, musl]
     runs-on: "macos-latest"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
       - name: Display artifacts
-        run: ls -R
+        run: ls -Rlh
         working-directory: ./artifacts
 
       - name: Create fat library
@@ -112,7 +138,7 @@ jobs:
           cargo package --no-verify -p yxy
 
       - name: Upload Bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: XCFramework
           path: |
@@ -134,6 +160,9 @@ jobs:
           mv artifacts/x86_64-unknown-linux-gnu/yxy-httpd dist/yxy-httpd-x86_64-unknown-linux-gnu
           mv artifacts/x86_64-unknown-linux-gnu/libyxy_ffi.so dist/libyxy-x86_64-unknown-linux-gnu.so
           mv artifacts/x86_64-unknown-linux-gnu/libyxy_ffi.a dist/libyxy-x86_64-unknown-linux-gnu.a
+          mv artifacts/x86_64-unknown-linux-musl/yxy-cli dist/yxy-cli-x86_64-unknown-linux-musl
+          mv artifacts/x86_64-unknown-linux-musl/yxy-httpd dist/yxy-httpd-x86_64-unknown-linux-musl
+          mv artifacts/x86_64-unknown-linux-musl/libyxy_ffi.a dist/libyxy-x86_64-unknown-linux-musl.a
           mv artifacts/aarch64-apple-darwin/yxy-cli dist/yxy-cli-aarch64-apple-darwin
           mv artifacts/aarch64-apple-darwin/yxy-httpd dist/yxy-httpd-aarch64-apple-darwin
           mv artifacts/aarch64-apple-darwin/libyxy_ffi.dylib dist/libyxy-aarch64-apple-darwin.dylib
