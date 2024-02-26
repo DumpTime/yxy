@@ -89,6 +89,9 @@ jobs:
 
       - name: List support target platform
         run: rustup target list
+      
+      - name: Install musl dependencies
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       - uses: Swatinem/rust-cache@v2
         with:
