@@ -3,6 +3,13 @@ use std::net::SocketAddr;
 use clap::Parser;
 use yxy_httpd::router;
 
+#[cfg(target_env = "musl")]
+use tikv_jemallocator::Jemalloc;
+
+#[cfg(target_env = "musl")]
+#[global_allocator]
+static ALLOC: Jemalloc = Jemalloc;
+
 #[tokio::main]
 async fn main() {
     // Parse args
