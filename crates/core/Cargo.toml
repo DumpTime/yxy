@@ -43,7 +43,7 @@ workspace = true
 features = ["cookies", "rustls-tls"]
 
 [dependencies.uuid]
-version = "1.2"
+version = "1.8"
 features = ["v4", "fast-rng", "macro-diagnostics"]
 
 [features]
