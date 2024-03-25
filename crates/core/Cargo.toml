@@ -15,7 +15,7 @@ publish = false
 [dependencies]
 aes = "0.8"
 base64 = "0.22"
-bytes = "1.2"
+bytes = "1.6"
 chrono = { version = "0.4", default-features = false, features = [
     "clock",
     "std",
